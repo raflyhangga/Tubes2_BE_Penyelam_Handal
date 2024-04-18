@@ -1,4 +1,4 @@
-package src
+package scrapper
 
 import (
 	"log"
