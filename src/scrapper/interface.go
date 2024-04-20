@@ -17,13 +17,12 @@ func printSolution(solutions []Node, duration time.Duration) {
 	}
 }
 
-func IDS_interface(link_awal string, link_tujuan string, depth int) {
-	var initial Node
-	initial.Current = link_awal
+func IDS_interface(link_awal string, link_tujuan string) {
+	graph := constructGraph([]string{},link_awal,MAX_DEPTH)
 
 	var solutions []Node
 	startTime := time.Now()
-	iterative_deepening_search(initial, link_tujuan, depth, &solutions)
+	iterative_deepening_search(graph, link_tujuan, MAX_DEPTH, &solutions)
 	duration := time.Since(startTime)
 
 	printSolution(solutions, duration)
@@ -31,11 +30,12 @@ func IDS_interface(link_awal string, link_tujuan string, depth int) {
 }
 
 func BFS_interface(link_awal string, link_tujuan string) {
-	NodeA := Node{Current: link_awal}
+	graph := constructGraph([]string{},link_awal,MAX_DEPTH)
 
+	initialQ :=[]Node{graph}
 	solutions :=[]Node{}
 	startTime := time.Now()
-	breadth_first_search([]Node{NodeA}, link_tujuan, &solutions)
+	breadth_first_search(initialQ, link_tujuan, &solutions)
 	duration := time.Since(startTime)
 
 	printSolution(solutions, duration)

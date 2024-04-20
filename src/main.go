@@ -5,7 +5,7 @@ import (
 )
 
 func main(){
-	start_link := "https://en.wikipedia.org/wiki/Indonesia"
-	end_link := "https://en.wikipedia.org/wiki/Asia"
-	scrapper.IDS_interface(start_link,end_link,5)
+	start_link := "https://en.wikipedia.org/wiki/Adolf_Hitler"
+	end_link := "https://en.wikipedia.org/wiki/Dinosaur"
+	scrapper.BFS_interface(start_link,end_link)
 }
