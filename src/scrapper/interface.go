@@ -35,9 +35,9 @@ func BFS_interface(link_awal string, link_tujuan string) {
 	initial.Current = link_awal
 
 	var solutions []Node
-	var lengt_solution int = 9999
+	// var lengt_solution int = 9999
 	startTime := time.Now()
-	breadth_first_search_mant_solution(initial, link_tujuan, &solutions, &lengt_solution)
+	breadth_first_search([]Node{initial}, link_tujuan, &solutions)
 	duration := time.Since(startTime)
 
 	printSolution(solutions, duration)
