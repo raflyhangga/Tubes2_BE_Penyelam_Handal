@@ -31,13 +31,11 @@ func IDS_interface(link_awal string, link_tujuan string, depth int) {
 }
 
 func BFS_interface(link_awal string, link_tujuan string) {
-	var initial Node
-	initial.Current = link_awal
+	NodeA := Node{Current: link_awal}
 
-	var solutions []Node
-	// var lengt_solution int = 9999
+	solutions :=[]Node{}
 	startTime := time.Now()
-	breadth_first_search([]Node{initial}, link_tujuan, &solutions)
+	breadth_first_search([]Node{NodeA}, link_tujuan, &solutions)
 	duration := time.Since(startTime)
 
 	printSolution(solutions, duration)

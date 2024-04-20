@@ -59,7 +59,7 @@ func getAdjacentLinks(active_node Node) []Node {
 	// Find all the links in the HTML document
 	var links []Node
 	// Filter the links that start with "/wiki" and do not contain ":" or "#"
-	doc.Find("a").FilterFunction(func(i int, s *goquery.Selection) bool {
+	doc.Find("div.mw-content-ltr.mw-parser-output").Find("a").FilterFunction(func(i int, s *goquery.Selection) bool {
 		linkTemp, _ := s.Attr("href")
 		return strings.HasPrefix(linkTemp, "/wiki") // && !(strings.Contains(linkTemp, ":") || strings.Contains(linkTemp, "#"))
 	}).Each(func(i int, s *goquery.Selection) {

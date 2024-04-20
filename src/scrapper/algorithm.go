@@ -13,25 +13,45 @@ import (
  * @param depth: the maximum depth to search
  * @param hasil: a list of nodes that contain the path from the start node to the destination node
  */
+ var THREADS_AMOUNT = 2
 func iterative_deepening_search(current_node Node, link_tujuan string, depth int, hasil *[]Node) {
+	fmt.Println(current_node.Current)                            // for Debugging, delete when it's done
 	if depth == 0 {
 		// check is the current node is the destination node
-		fmt.Println() // for Debugging, delete when it's done
 		if current_node.Current == link_tujuan {
 			*hasil = append(*hasil, current_node)
 		}
 	} else {
-		fmt.Println()                            // for Debugging, delete when it's done
 		if current_node.Current == link_tujuan { // check is the current node is the destination node
 			*hasil = append(*hasil, current_node)
 		} else { // if the current node is not the destination node
+			var wg sync.WaitGroup
 			tetangga := getAdjacentLinks(current_node)
-			for _, node := range tetangga {
-				iterative_deepening_search(node, link_tujuan, depth-1, hasil)
+			fmt.Println("DEBUG")
+			wg.Add(THREADS_AMOUNT)
+
+			begin := 0
+			limit := THREADS_AMOUNT
+			blocks := ((len(tetangga) + THREADS_AMOUNT - 1) / THREADS_AMOUNT)
+			for i := 0; i < blocks ; i++ {
+				for _,node := range tetangga[begin:limit] {
+					go func(node Node,link_tujuan string,depth int,  hasil *[]Node){
+						defer wg.Done()
+						iterative_deepening_search(node, link_tujuan, depth-1, hasil)
+					}(node, link_tujuan, depth-1, hasil)
+				}
+				wg.Wait()
+				begin = limit
+				if (i == blocks -1) {
+					limit = len(tetangga) - (blocks - 1) * THREADS_AMOUNT
+				} else {
+					limit += THREADS_AMOUNT
+				}
 			}
 		}
 	}
 }
+
 
 /**
  * Function to perform Breadth First Search (BFS) algorithm
