@@ -2,6 +2,7 @@ package scrapper
 
 import (
 	"fmt"
+	"sync"
 	"time"
 )
 
@@ -18,7 +19,8 @@ func printSolution(solutions []Node, duration time.Duration) {
 }
 
 func IDS_interface(link_awal string, link_tujuan string) {
-	graph := constructGraph([]string{},link_awal,MAX_DEPTH)
+	var wg sync.WaitGroup
+	graph := constructGraph([]string{}, link_awal, MAX_DEPTH, &wg)
 
 	var solutions []Node
 	startTime := time.Now()
@@ -30,10 +32,11 @@ func IDS_interface(link_awal string, link_tujuan string) {
 }
 
 func BFS_interface(link_awal string, link_tujuan string) {
-	graph := constructGraph([]string{},link_awal,MAX_DEPTH)
+	var wg sync.WaitGroup
+	graph := constructGraph([]string{}, link_awal, MAX_DEPTH, &wg)
 
-	initialQ :=[]Node{graph}
-	solutions :=[]Node{}
+	initialQ := []Node{graph}
+	solutions := []Node{}
 	startTime := time.Now()
 	breadth_first_search(initialQ, link_tujuan, &solutions)
 	duration := time.Since(startTime)

@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"sync"
+
 	// "sync"
 
 	"github.com/PuerkitoBio/goquery"
@@ -15,63 +17,85 @@ var total_nodes int = 0
 
 // Define a struct to represent a node in the graph
 type Node struct {
-	Current string // The current link (current node)
+	Current    string // The current link (current node)
 	Neighbours []Node // The path from the start node to the current node
-	Paths []string
+	Paths      []string
 }
 
 const (
 	MAX_THREAD int = 100
-	MAX_DEPTH int = 7
+	MAX_DEPTH  int = 3
 )
 
-func constructGraph(before []string,link string, depth int)Node{
-	fmt.Println(link)
-	if (depth == 0) {
-		return Node{
-			Current: link,
-			Paths: before,
-		}
-	} else {
-		tetangga := getAdjacentLinks(link) 
-		var arrayNode []Node;
+// func constructGraph(before []string, link string, depth int) Node {
+// 	fmt.Println("construct : ", link)
+// 	if depth == 0 {
+// 		return Node{
+// 			Current: link,
+// 			Paths:   before,
+// 		}
+// 	} else {
+// 		tetangga := getAdjacentLinks(link)
+// 		var arrayNode []Node
 
-		// var wg sync.WaitGroup
+// 		// var wg sync.WaitGroup
 
-		// for len(tetangga) > MAX_THREAD {
-		// 	wg.Add(MAX_THREAD)
-		// 	queue_100_elmt := append([]string{}, tetangga[:MAX_THREAD]...)
-		// 	tetangga = tetangga[MAX_THREAD:]
-		// 	for _,v := range queue_100_elmt {
-		// 		go func(v string){
-		// 			defer wg.Done()
-		// 			arrayNode = append(arrayNode, constructGraph(append(before,link),v,depth-1))
-		// 		}(v)
-		// 	}
-		// 	wg.Wait()
-		// }
+// 		// for len(tetangga) > MAX_THREAD {
+// 		// 	wg.Add(MAX_THREAD)
+// 		// 	queue_100_elmt := append([]string{}, tetangga[:MAX_THREAD]...)
+// 		// 	tetangga = tetangga[MAX_THREAD:]
+// 		// 	for _,v := range queue_100_elmt {
+// 		// 		go func(v string){
+// 		// 			defer wg.Done()
+// 		// 			arrayNode = append(arrayNode, constructGraph(append(before,link),v,depth-1))
+// 		// 		}(v)
+// 		// 	}
+// 		// 	wg.Wait()
+// 		// }
 
-		// wg.Add(len(tetangga))
-		// for _,v := range tetangga {
-		// 	go func(v string){
-		// 		defer wg.Done()
-		// 		arrayNode = append(arrayNode, constructGraph(append(before,link),v,depth-1))
-		// 	}(v)
-		// }
-		// wg.Wait()
+// 		// wg.Add(len(tetangga))
+// 		// for _,v := range tetangga {
+// 		// 	go func(v string){
+// 		// 		defer wg.Done()
+// 		// 		arrayNode = append(arrayNode, constructGraph(append(before,link),v,depth-1))
+// 		// 	}(v)
+// 		// }
+// 		// wg.Wait()
 
-		for _,v := range tetangga {
-			arrayNode = append(arrayNode, constructGraph(append(before,link),v,depth-1))	
-		} 
+// 		for _, v := range tetangga {
+// 			arrayNode = append(arrayNode, constructGraph(append(before, link), v, depth-1))
+// 		}
 
-		return Node{
-			Current: link,
-			Neighbours: arrayNode,
-			Paths: before,
-		}
+// 		return Node{
+// 			Current:    link,
+// 			Neighbours: arrayNode,
+// 			Paths:      before,
+// 		}
+// 	}
+// }
+
+func constructGraph(before []string, link string, depth int, wg *sync.WaitGroup) Node {
+	defer wg.Done()
+	fmt.Println("construct : ", link)
+	if depth == 0 {
+		return Node{Current: link, Paths: before}
 	}
-} 
 
+	tetangga := getAdjacentLinks(link)
+	var childWG sync.WaitGroup
+	var arrayNode []Node
+
+	for _, v := range tetangga {
+		childWG.Add(1)
+		go func(v string) {
+			defer childWG.Done()
+			arrayNode = append(arrayNode, constructGraph(append(before, link), v, depth-1, &childWG))
+		}(v)
+	}
+
+	childWG.Wait()
+	return Node{Current: link, Neighbours: arrayNode, Paths: before}
+}
 
 // Define a map to keep track of node (link) that has been added to the queue/stack
 // if the node is added, the value is true, otherwise false
