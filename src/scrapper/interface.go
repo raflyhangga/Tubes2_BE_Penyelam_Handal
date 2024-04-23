@@ -2,7 +2,6 @@ package scrapper
 
 import (
 	"fmt"
-	"sync"
 	"time"
 )
 
@@ -18,29 +17,34 @@ func printSolution(solutions []Node, duration time.Duration) {
 	}
 }
 
-func IDS_interface(link_awal string, link_tujuan string) {
-	var wg sync.WaitGroup
-	graph := constructGraph([]string{}, link_awal, MAX_DEPTH, &wg)
+func IDS_interface(link_awal string, link_tujuan string) ([]Node,time.Duration) {
+	var initial Node
+	initial.Current = link_awal
+
+	var solutions []Node
+	depth := 0
+
+	startTime := time.Now()
+	for (len(solutions) == 0) {
+		fmt.Println(depth)
+		iterative_deepening_search(initial, link_tujuan, depth,&solutions)
+		depth++
+	}
+	duration := time.Since(startTime)
+
+	printSolution(solutions, duration)
+	return solutions,duration
+}
+
+func BFS_interface(link_awal string, link_tujuan string) ([]Node,time.Duration) {
+	var initial Node
+	initial.Current = link_awal
 
 	var solutions []Node
 	startTime := time.Now()
-	iterative_deepening_search(graph, link_tujuan, MAX_DEPTH, &solutions)
+	breadth_first_search([]Node{initial}, link_tujuan, &solutions)
 	duration := time.Since(startTime)
 
 	printSolution(solutions, duration)
-
-}
-
-func BFS_interface(link_awal string, link_tujuan string) {
-	var wg sync.WaitGroup
-	graph := constructGraph([]string{}, link_awal, MAX_DEPTH, &wg)
-
-	initialQ := []Node{graph}
-	solutions := []Node{}
-	startTime := time.Now()
-	breadth_first_search(initialQ, link_tujuan, &solutions)
-	duration := time.Since(startTime)
-
-	printSolution(solutions, duration)
-
+	return solutions,duration
 }

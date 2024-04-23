@@ -8,7 +8,7 @@ cd/src
 go mod tidy
 ```
 
-To run the project, execut
+To run the project, execute
 ```
 go run main.go
 ```
