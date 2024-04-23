@@ -18,18 +18,8 @@ func printSolution(solutions []Node, duration time.Duration) {
 }
 
 func IDS_interface(link_awal string, link_tujuan string) ([]Node,time.Duration) {
-	var initial Node
-	initial.Current = link_awal
-
-	var solutions []Node
-	depth := 0
-
 	startTime := time.Now()
-	for (len(solutions) == 0) {
-		fmt.Println(depth)
-		iterative_deepening_search(initial, link_tujuan, depth,&solutions)
-		depth++
-	}
+	solutions := iterative_deepening_search(link_awal,link_tujuan)
 	duration := time.Since(startTime)
 
 	printSolution(solutions, duration)

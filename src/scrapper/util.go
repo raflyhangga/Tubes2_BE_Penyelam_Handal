@@ -12,7 +12,6 @@ import (
 )
 
 var DOMAIN_PREFIX string = "https://en.wikipedia.org"
-var total_nodes int = 0
 var THREADS int = 5
 
 // Define a struct to represent a node in the graph

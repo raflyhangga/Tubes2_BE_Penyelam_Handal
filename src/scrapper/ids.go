@@ -8,15 +8,14 @@ package scrapper
  * @param depth: the maximum depth to search
  * @param hasil: a list of nodes that contain the path from the start node to the destination node
  */
- func iterative_deepening_search(current_node Node,link_tujuan string, depth int, hasil *[]Node){
-	// fmt.Println(current_node.Current)
+ func depth_limited_search(current_node Node,link_tujuan string, depth int, hasil *[]Node){
 	if(depth > 0){
 		if current_node.Current == link_tujuan{
 			*hasil = append(*hasil, current_node)
 		} else {
 			tetangga := getAdjacentLinks(current_node)
 			for _,node := range tetangga {
-				iterative_deepening_search(node,link_tujuan,depth-1,hasil)
+				depth_limited_search(node,link_tujuan,depth-1,hasil)
 				if(len(*hasil) != 0) {
 					return
 				}
@@ -25,7 +24,19 @@ package scrapper
 	}
 }
 
+func iterative_deepening_search(link_awal string, link_tujuan string)([]Node){
+	var initial Node
+	initial.Current = link_awal
 
+	var solutions []Node
+	depth := 0
+
+	for (len(solutions) == 0) {
+		depth_limited_search(initial, link_tujuan, depth,&solutions)
+		depth++
+	}
+	return solutions
+}
 
 
 

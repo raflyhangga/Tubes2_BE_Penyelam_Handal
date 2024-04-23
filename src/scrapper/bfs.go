@@ -1,7 +1,6 @@
 package scrapper
 
 import (
-	// "fmt"
 	"sync"
 )
 
@@ -21,7 +20,6 @@ import (
 		isDestinationLinkExist := false
 		for _, current_node := range current_queue {
 			visitedNode[current_node.Current] = true
-			total_nodes++
 			if current_node.Current == destination_link {
 				*hasil = append(*hasil, current_node)
 				isDestinationLinkExist = true
@@ -51,9 +49,6 @@ import (
 						// get the adjacent links from the current node
 						adjacent_links := getAdjacentLinks(current_node)
 						new_queue = append(new_queue, adjacent_links...)
-						// fmt.Println(new_queue[0].Current)
-						// fmt.Println(new_queue[len(new_queue)-1].Current)
-						// fmt.Println(len(new_queue))
 					}(current_node)
 				}
 				wg.Wait()
@@ -67,9 +62,6 @@ import (
 					// get the adjacent links from the current node
 					adjacent_links := getAdjacentLinks(current_node)
 					new_queue = append(new_queue, adjacent_links...)
-					// fmt.Println(new_queue[0].Current)
-					// fmt.Println(new_queue[len(new_queue)-1].Current)
-					// fmt.Println(len(new_queue))
 				}(current_node)
 			}
 
