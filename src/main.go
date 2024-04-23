@@ -20,7 +20,11 @@ func ids_router(context *gin.Context) {
 	link_1 := PREFIX + queryParams.Get("init")
 	link_2 := PREFIX + queryParams.Get("goal")
 
+	fmt.Println("Starting iterative deepening search...")
+	fmt.Println(link_1)
+	fmt.Println(link_2)
 	solution,duration := scrapper.IDS_interface(link_1,link_2)
+	
 	var pack Package
 	pack.Duration = duration.String()
 	for _,node := range solution {
@@ -38,6 +42,7 @@ func bfs_router(context *gin.Context) {
 	link_1 := PREFIX + queryParams.Get("init")
 	link_2 := PREFIX + queryParams.Get("goal")
 
+	fmt.Println("Starting breadth first search...")
 	fmt.Println(link_1)
 	fmt.Println(link_2)
 	solution,duration := scrapper.BFS_interface(link_1,link_2)

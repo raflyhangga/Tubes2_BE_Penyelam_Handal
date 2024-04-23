@@ -38,12 +38,12 @@ import (
 			var new_queue []Node
 
 			// process the first 100 links in the current queue
-			for len(current_queue) > 100 {
+			for len(current_queue) > THREADS {
 				// limit the number of goroutines to 100 to avoid spam http request
-				wg.Add(100)
-				queue_100_elmt := append([]Node{}, current_queue[:100]...)
-				current_queue = current_queue[100:]
-				for _, current_node := range queue_100_elmt {
+				wg.Add(THREADS)
+				queue_THREADS_elmt := append([]Node{}, current_queue[:THREADS]...)
+				current_queue = current_queue[THREADS:]
+				for _, current_node := range queue_THREADS_elmt {
 					go func(current_node Node) {
 						defer wg.Done()
 						// get the adjacent links from the current node

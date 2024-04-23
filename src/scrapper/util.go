@@ -12,7 +12,7 @@ import (
 )
 
 var DOMAIN_PREFIX string = "https://en.wikipedia.org"
-var THREADS int = 5
+var THREADS int = 400
 
 // Define a struct to represent a node in the graph
 type Node struct {

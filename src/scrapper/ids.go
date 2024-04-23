@@ -9,22 +9,25 @@ package scrapper
  * @param hasil: a list of nodes that contain the path from the start node to the destination node
  */
  func depth_limited_search(current_node Node,link_tujuan string, depth int, hasil *[]Node){
-	if(depth > 0){
+	if(depth >= 0){
 		if current_node.Current == link_tujuan{
+			current_node.Paths = append(current_node.Paths, current_node.Current)
 			*hasil = append(*hasil, current_node)
 		} else {
 			tetangga := getAdjacentLinks(current_node)
 			for _,node := range tetangga {
-				depth_limited_search(node,link_tujuan,depth-1,hasil)
-				if(len(*hasil) != 0) {
-					return
+				if node.Current == link_tujuan {
+					current_node.Paths = append(current_node.Paths, current_node.Current)
+					*hasil = append(*hasil, current_node)
+				} else {
+					depth_limited_search(node,link_tujuan,depth-1,hasil)
 				}
 			}
 		}
 	}
 }
 
-func iterative_deepening_search(link_awal string, link_tujuan string)([]Node){
+func iterative_deepening_search(link_awal string, link_tujuan string,hasil *[]Node){
 	var initial Node
 	initial.Current = link_awal
 
@@ -35,30 +38,6 @@ func iterative_deepening_search(link_awal string, link_tujuan string)([]Node){
 		depth_limited_search(initial, link_tujuan, depth,&solutions)
 		depth++
 	}
-	return solutions
+
+	*hasil = solutions
 }
-
-
-
-// func iterative_deepening_search(current_node Node,link_tujuan string, depth int, hasil *[]Node) {
-// 	fmt.Println(current_node.Current);
-// 	if(depth == 0){
-// 		if current_node.Current == link_tujuan{
-// 			*hasil = append(*hasil, current_node)
-// 		}
-// 	} else {
-// 		if current_node.Current == link_tujuan{
-// 			*hasil = append(*hasil, current_node)
-// 		} else {
-// 			for _,node := range current_node.Neighbours {
-// 				if(len(cache[node.Current]) == 0) {
-// 					getLinkz(&node)
-// 					cache[node.Current] = node.Neighbours
-// 				} else {
-// 					node.Neighbours = cache[node.Current]
-// 				}
-// 				iterative_deepening_search(node,link_tujuan,depth-1,hasil)
-// 			}
-// 		}
-// 	}
-// }
