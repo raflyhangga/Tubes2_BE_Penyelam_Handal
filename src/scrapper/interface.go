@@ -51,6 +51,7 @@ func BFS_interface(link_awal string, link_tujuan string) ([]Node, time.Duration)
 	loadCache()
 
 	printSolution(solutions, duration)
-
+	// clean map Visited_Node
+	Visited_Node = make(map[string]bool)
 	return solutions, duration
 }

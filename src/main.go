@@ -30,7 +30,7 @@ func ids_router(context *gin.Context) {
 	pack.Duration = duration.String()
 	pack.Total = scrapper.Total_Visited_Link
 	for _, node := range solution {
-		pack.Solutions = append(pack.Solutions, node.Paths)
+		pack.Solutions = append(pack.Solutions, append(node.Paths, node.Current))
 	}
 
 	if len(solution) != 0 {
@@ -56,7 +56,7 @@ func bfs_router(context *gin.Context) {
 	pack.Duration = duration.String()
 	pack.Total = scrapper.Total_Visited_Link
 	for _, node := range solution {
-		pack.Solutions = append(pack.Solutions, node.Paths)
+		pack.Solutions = append(pack.Solutions, append(node.Paths, node.Current))
 	}
 
 	if len(solution) != 0 {
