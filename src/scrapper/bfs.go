@@ -12,21 +12,20 @@ import (
  * @param hasil: a list of nodes that contain destination node
  */
 func breadth_first_search(currentQueue []Node, destinationLink string, hasil *[]Node) {
-	if len(currentQueue) == 0 {
+	if len(currentQueue) == 0 { // just
 		return
 	} else {
 		// go through all the nodes in the current queue
 		// check if the destination node is in the current queue
 		isDestinationLinkExist := false
 		for _, current_node := range currentQueue {
-			visitedNode[current_node.Current] = true
+			Visited_Node[current_node.Current] = true
 			if current_node.Current == destinationLink {
-				current_node.Paths = append(current_node.Paths, current_node.Current)
 				*hasil = append(*hasil, current_node)
 				isDestinationLinkExist = true
 			}
 		}
-		TotalVisitedLink += len(currentQueue)
+		Total_Visited_Link += len(currentQueue)
 
 		if isDestinationLinkExist {
 			// solution is found, return
@@ -50,8 +49,8 @@ func breadth_first_search(currentQueue []Node, destinationLink string, hasil *[]
 					go func(current_node Node) {
 						defer wg.Done()
 						// get the adjacent links from the current node
-						adjacent_links := getAdjacentLinks(current_node)
-						newQueue = append(newQueue, adjacent_links...)
+						adjacentLinks := getAdjacentLinks(current_node)
+						newQueue = append(newQueue, adjacentLinks...)
 					}(currentQueue[i])
 				}
 
@@ -66,8 +65,8 @@ func breadth_first_search(currentQueue []Node, destinationLink string, hasil *[]
 				go func(current_node Node) {
 					defer wg.Done()
 					// get the adjacent links from the current node
-					adjacent_links := getAdjacentLinks(current_node)
-					newQueue = append(newQueue, adjacent_links...)
+					adjacentLinks := getAdjacentLinks(current_node)
+					newQueue = append(newQueue, adjacentLinks...)
 				}(currentQueue[i])
 			}
 			// wait for all goroutines to finish

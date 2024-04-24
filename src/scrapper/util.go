@@ -5,27 +5,20 @@ import (
 	"log"
 	"net/http"
 	"strings"
-
-	// "sync"
-
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
 )
 
-var TotalVisitedLink int = 0
-var DOMAIN_PREFIX string = "https://en.wikipedia.org"
-var THREADS int = 100
-
+/**
+ *    DATA STRUCTURE
+ *
+ */
 // Define a struct to represent a node in the graph
 type Node struct {
 	Current string
 	Paths   []string
 }
-
-// Define a map to keep track of node (link) that has been added to the queue/stack
-// if the node is added, the value is true, otherwise false
-var visitedNode = make(map[string]bool)
 
 // Cache
 type LinkData struct {
@@ -33,67 +26,126 @@ type LinkData struct {
 	Neighbours []string
 }
 
-var cache = make(map[string][]string)
-var temp_cache []LinkData
+/**
+ *    GLOBAL VARIABLES
+ *
+ */
+var DOMAIN_PREFIX string = "https://en.wikipedia.org"
+var THREADS int = 100
+var Total_Visited_Link int = 0
+var LOCK = false
 
+// Define a map to keep track of node (link) that has been added to the queue/stack
+// if the node is added, the value is true, otherwise false
+var Visited_Node = make(map[string]bool)
+
+// Cache
+var Cache = make(map[string][]string)
+
+// Temporary Cache, because cannot write to map directly in goroutine
+var Temp_Cache []LinkData
+
+/**
+ *    FUNCTION
+ *
+ */
+
+/**
+ * Function to load the Cache
+ */
 func loadCache() {
-	for i := 0; i < len(temp_cache); i++ {
-		link := temp_cache[i].Link
-		neighbour := temp_cache[i].Neighbours
-		if len(cache[link]) == 0 {
-			cache[link] = neighbour
+	for i := 0; i < len(Temp_Cache); i++ {
+		link := Temp_Cache[i].Link
+		neighbour := Temp_Cache[i].Neighbours
+
+		if len(Cache[link]) == 0 { // if the link is not in the Cache
+			Cache[link] = neighbour
 		}
 	}
 }
 
+/**
+ *
+ * Function to write the Cache
+ *
+ * @param link: the link
+ * @param neighbour: a list of adjacent nodes/links
+ */
 func writeCache(link string, neighbour []string) {
-	temp_cache = append(temp_cache, LinkData{
+	Temp_Cache = append(Temp_Cache, LinkData{
 		Link:       link,
 		Neighbours: neighbour,
 	})
 }
 
+/**
+ * Function to check if the link is in the Cache
+ *
+ * @param link: the link
+ * @return true if the link is in the Cache, otherwise false
+ */
 func isInCache(link string) bool {
-	return !(len(cache[link]) == 0)
+	return len(Cache[link]) != 0
 }
 
+/**
+ * Function to get the list of adjacent nodes from the Cache
+ *
+ * @param link: the link
+ * @return a list of adjacent nodes
+ */
 func getCache(link string) []string {
-	return cache[link]
+	return Cache[link]
 }
 
-func getCacheToNode(main_link Node) []Node {
-	var list_node []Node
-	for _, link := range getCache(main_link.Current) {
+/**
+ * Function to get the adjacent nodes from the Cache
+ *
+ * @param mainLink: the current node
+ * @return a list of adjacent nodes
+ */
+func getCacheToNode(mainLink Node) []Node {
+	var listNode []Node
+	for _, link := range getCache(mainLink.Current) {
 		var temp_Node = Node{
 			Current: link,
-			Paths:   append(main_link.Paths, main_link.Current),
+			Paths:   append(mainLink.Paths, mainLink.Current),
 		}
-		list_node = append(list_node, temp_Node)
+		listNode = append(listNode, temp_Node)
 	}
-	return list_node
+	return listNode
 }
 
-// Function to get the response from the link
+/**
+ * Function to get the response from the link
+ *
+ * @param link: the link
+ * @return the response
+ */
 func getResponse(link string) *http.Response {
 	res, err := http.Get(link)
 	if err != nil {
 		log.Fatal("Failed to connect to designated page", err)
 	}
 
-	if res.StatusCode != 200 && res.StatusCode != 429 {
-		//log.Fatalf("HTTP Error %d: %s", res.StatusCode, res.Status)
-		fmt.Println("HTTP Error", res.StatusCode, ":", res.Status)
-		return nil
-	} else if res.StatusCode == 429 {
+	if res.StatusCode == 200 { // if the request is successful
+		return res
+	} else if res.StatusCode == 429 { // if the request is too many
 		fmt.Println("Too many requests, please wait for a while")
 		time.Sleep(2 * time.Second)
 		return getResponse(link)
-	} else {
-		return res
+	} else { // if the request is failed
+		fmt.Println("HTTP Error", res.StatusCode, ":", res.Status)
+		return nil
 	}
 }
 
-// Function to get HTML document from the response
+/**
+ * Function to get the HTML document from the response
+ *
+ * @param resp: the response
+ * @return the HTML document
+ */
 func getDocument(resp *http.Response) *goquery.Document {
 	if resp == nil {
 		return nil
@@ -110,45 +162,61 @@ func getDocument(resp *http.Response) *goquery.Document {
 /**
  * Function to get the adjacent nodes (links) from the current node (current link)
  *
- * @param active_node: the current node
+ * @param activeNode: the current node
  * @return links: a list of adjacent nodes
  */
-func getAdjacentLinks(active_node Node) []Node {
-	if !isInCache(active_node.Current) {
+func getAdjacentLinks(activeNode Node) []Node {
+	if !isInCache(activeNode.Current) { // If the link is not in the Cache
 		// Get the HTML document from the current link
-		link := active_node.Current
-		var links_string []string
+		link := DOMAIN_PREFIX + activeNode.Current
 		res := getResponse(link)
 		doc := getDocument(res)
-		unique := make(map[string]bool)
-		// Find all the links in the HTML document
-		var links []Node
-		// Filter the links that start with "/wiki" and do not contain ":" or "#"
-		doc.Find("div.mw-content-ltr.mw-parser-output").Find("a").FilterFunction(func(i int, s *goquery.Selection) bool {
-			linkTemp, _ := s.Attr("href")
-			return strings.HasPrefix(linkTemp, "/wiki") && !(strings.Contains(linkTemp, "."))
-		}).Each(func(i int, s *goquery.Selection) {
-			linkTemp, _ := s.Attr("href")
-			// fmt.Println(DOMAIN_PREFIX + linkTemp)
-			// Create a new node for each link
-			var tempNode = Node{
-				Current: removeHash(DOMAIN_PREFIX + linkTemp),
-				Paths:   append(active_node.Paths, removeHash(active_node.Current)),
-			}
-			// Append the new node to the list of links
-			if !visitedNode[tempNode.Current] && !unique[tempNode.Current] {
-				links = append(links, tempNode)
-				links_string = append(links_string, tempNode.Current)
-				unique[tempNode.Current] = true
-			}
-		})
-		writeCache(active_node.Current, links_string)
-		return links
-	} else {
-		return getCacheToNode(active_node)
+
+		// If the document is nil, return an empty list
+		if doc == nil {
+			return []Node{}
+		} else {
+			var linksString []string        // to store the links to add into the Temp_Cache
+			unique := make(map[string]bool) // to make sure that the link is unique
+
+			// Find all the links in the HTML document
+			var linkNodes []Node
+			// Filter the links that start with "/wiki/" and do not contain "."
+			doc.Find("div.mw-content-ltr.mw-parser-output").Find("a").FilterFunction(func(i int, s *goquery.Selection) bool {
+				linkTemp, _ := s.Attr("href")
+				return strings.HasPrefix(linkTemp, "/wiki") && !(strings.Contains(linkTemp, "."))
+			}).Each(func(i int, s *goquery.Selection) {
+				linkTemp, _ := s.Attr("href")
+				// Create a new node for each link
+				var tempNode = Node{
+					Current: removeHash(linkTemp),
+					Paths:   append(activeNode.Paths, removeHash(activeNode.Current)),
+				}
+
+				// Append the new node to the list of links
+				if !Visited_Node[tempNode.Current] && !unique[tempNode.Current] {
+					linkNodes = append(linkNodes, tempNode)
+					linksString = append(linksString, tempNode.Current)
+					unique[tempNode.Current] = true
+				}
+			})
+
+			// Write the Cache
+			writeCache(activeNode.Current, linksString)
+
+			return linkNodes
+		}
+	} else { // If the link is in the Cache
+		return getCacheToNode(activeNode)
 	}
 }
 
+/**
+ * Function to remove the substring after the hash
+ *
+ * @param link: the link
+ * @return the link without the hash
+ */
 func removeHash(link string) string {
 	lastIndex := strings.LastIndexByte(link, '#')
 	if lastIndex < 0 {
