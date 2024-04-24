@@ -89,7 +89,7 @@ func getDocument(resp *http.Response) *goquery.Document {
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
-		fmt.Println("Failed to parse the HTML document", err)
+		fmt.Println("Failed to parse the HTML document,", err)
 		return nil
 	}
 	return doc
