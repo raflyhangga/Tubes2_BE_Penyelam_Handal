@@ -1,7 +1,6 @@
 package scrapper
 
 import (
-	"fmt"
 	"sync"
 )
 
@@ -21,7 +20,7 @@ func breadth_first_search(currentQueue []Node, destinationLink string, hasil *[]
 		isDestinationLinkExist := false
 		for _, current_node := range currentQueue {
 			visitedNode[current_node.Current] = true
-			if current_node.Current == destination_link {
+			if current_node.Current == destinationLink {
 				current_node.Paths = append(current_node.Paths, current_node.Current)
 				*hasil = append(*hasil, current_node)
 				isDestinationLinkExist = true
