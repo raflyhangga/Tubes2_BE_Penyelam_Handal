@@ -1,29 +1,29 @@
 package scrapper
 
 import (
-	// "fmt"
-	// "fmt"
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
-	// "sync"
-	
+	"time"
+
 	"github.com/PuerkitoBio/goquery"
 )
 
 var DOMAIN_PREFIX string = "https://en.wikipedia.org"
 var THREADS int = 400
-
-// Define a struct to represent a node in the graph
-type Node struct {
-	Current 	string		`json:"current"`   
-	Paths   	[]string	`json:"paths"` 
-	Depth 		int			`json:"depth"`
-}
+var totalVisitedLink int = 0
 
 // Define a map to keep track of node (link) that has been added to the queue/stack
 // if the node is added, the value is true, otherwise false
 var visitedNode = make(map[string]bool)
+
+// Define a struct to represent a node in the graph
+type Node struct {
+	Current string   `json:"current"`
+	Paths   []string `json:"paths"`
+	Depth   int      `json:"depth"`
+}
 
 // Function to get the response from the link
 func getResponse(link string) *http.Response {
@@ -32,18 +32,29 @@ func getResponse(link string) *http.Response {
 		log.Fatal("Failed to connect to designated page", err)
 	}
 
-	if res.StatusCode != 200 {
-		log.Fatalf("HTTP Error %d: %s", res.StatusCode, res.Status)
+	if res.StatusCode != 200 && res.StatusCode != 429 {
+		//log.Fatalf("HTTP Error %d: %s", res.StatusCode, res.Status)
+		fmt.Println("HTTP Error", res.StatusCode, ":", res.Status)
+		return nil
+	} else if res.StatusCode == 429 {
+		fmt.Println("Too many requests, please wait for a while")
+		time.Sleep(2 * time.Second)
+		return getResponse(link)
+	} else {
+		return res
 	}
-
-	return res
 }
 
 // Function to get HTML document from the response
 func getDocument(resp *http.Response) *goquery.Document {
+	if resp == nil {
+		return nil
+	}
+
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
-		log.Fatal("Failed to parse the HTML document", err)
+		fmt.Println("Failed to parse the HTML document", err)
+		return nil
 	}
 	return doc
 }
@@ -65,7 +76,7 @@ func getAdjacentLinks(active_node Node) []Node {
 	// Filter the links that start with "/wiki" and do not contain ":" or "#"
 	doc.Find("div.mw-content-ltr.mw-parser-output").Find("a").FilterFunction(func(i int, s *goquery.Selection) bool {
 		linkTemp, _ := s.Attr("href")
-		return strings.HasPrefix(linkTemp, "/wiki")  && !(strings.Contains(linkTemp, "."))
+		return strings.HasPrefix(linkTemp, "/wiki") && !(strings.Contains(linkTemp, "."))
 	}).Each(func(i int, s *goquery.Selection) {
 		linkTemp, _ := s.Attr("href")
 		// fmt.Println(DOMAIN_PREFIX + linkTemp)

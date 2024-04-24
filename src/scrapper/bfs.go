@@ -7,69 +7,73 @@ import (
 /**
  * Function to perform Breadth First Search (BFS) algorithm
  *
- * @param current_queue: a list of nodes (links) to be processed
- * @param destination_link: link of the destination link
+ * @param currentQueue: a list of nodes (links) to be processed
+ * @param destinationLink: link of the destination link
  * @param hasil: a list of nodes that contain destination node
  */
- func breadth_first_search(current_queue []Node, destination_link string, hasil *[]Node) {
-	if len(current_queue) == 0 {
+func breadth_first_search(currentQueue []Node, destinationLink string, hasil *[]Node) {
+	if len(currentQueue) == 0 {
 		return
 	} else {
 		// go through all the nodes in the current queue
 		// check if the destination node is in the current queue
 		isDestinationLinkExist := false
-		for _, current_node := range current_queue {
+		for _, current_node := range currentQueue {
 			visitedNode[current_node.Current] = true
-			if current_node.Current == destination_link {
+			if current_node.Current == destinationLink {
 				*hasil = append(*hasil, current_node)
 				isDestinationLinkExist = true
 			}
 		}
+		totalVisitedLink += len(currentQueue)
 
 		if isDestinationLinkExist {
 			// solution is found, return
 			return
 		} else {
 			// if the current queue does not have the destination node
-			// create a goroutine for each adjacent link to concurrently get the adjacent links
+			// create a goroutine for each link to concurrently get the adjacent links
 			var wg sync.WaitGroup
 
 			// make a new queue to store the adjacent links from the current queue
-			var new_queue []Node
+			var newQueue []Node
 
-			// process the first 100 links in the current queue
-			for len(current_queue) > THREADS {
-				// limit the number of goroutines to 100 to avoid spam http request
+			// process queue in blocks of THREADS to avoid spam http request
+			startIndeks := 0
+			endIndeks := THREADS
+			for endIndeks < len(currentQueue) {
+				// limit the number of goroutines to THREADS to avoid spam http request
 				wg.Add(THREADS)
-				queue_THREADS_elmt := append([]Node{}, current_queue[:THREADS]...)
-				current_queue = current_queue[THREADS:]
-				for _, current_node := range queue_THREADS_elmt {
+
+				for i := startIndeks; i < endIndeks; i++ {
 					go func(current_node Node) {
 						defer wg.Done()
 						// get the adjacent links from the current node
 						adjacent_links := getAdjacentLinks(current_node)
-						new_queue = append(new_queue, adjacent_links...)
-					}(current_node)
+						newQueue = append(newQueue, adjacent_links...)
+					}(currentQueue[i])
 				}
+
 				wg.Wait()
+				startIndeks += THREADS
+				endIndeks += THREADS
 			}
 
 			// process the remaining links
-			wg.Add(len(current_queue))
-			for _, current_node := range current_queue {
+			wg.Add(len(currentQueue) - startIndeks)
+			for i := startIndeks; i < len(currentQueue); i++ {
 				go func(current_node Node) {
 					defer wg.Done()
 					// get the adjacent links from the current node
 					adjacent_links := getAdjacentLinks(current_node)
-					new_queue = append(new_queue, adjacent_links...)
-				}(current_node)
+					newQueue = append(newQueue, adjacent_links...)
+				}(currentQueue[i])
 			}
-
 			// wait for all goroutines to finish
 			wg.Wait()
 
 			// recursively call the breadth_first_search function with the new queue
-			breadth_first_search(new_queue, destination_link, hasil)
+			breadth_first_search(newQueue, destinationLink, hasil)
 		}
 	}
 }
