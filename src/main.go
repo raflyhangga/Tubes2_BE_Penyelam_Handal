@@ -12,6 +12,7 @@ const PREFIX = "https://en.wikipedia.org/wiki/"
 type Package struct {
 	Solutions [][]string 	`json:"solutions"`
 	Duration string			`json:"duration"`
+	Total int				`json:"total_visited"`
 }
 
 func ids_router(context *gin.Context) {
@@ -26,6 +27,7 @@ func ids_router(context *gin.Context) {
 	
 	var pack Package
 	pack.Duration = duration.String()
+	pack.Total = scrapper.TotalVisitedLink
 	for _,node := range solution {
 		pack.Solutions = append(pack.Solutions,node.Paths)
 	}
@@ -34,6 +36,7 @@ func ids_router(context *gin.Context) {
 	} else {
 		context.IndentedJSON(http.StatusNotFound,gin.H{"message":"No Solution"})
 	}
+	scrapper.TotalVisitedLink = 0
 }
 
 func bfs_router(context *gin.Context) {
@@ -48,6 +51,7 @@ func bfs_router(context *gin.Context) {
 
 	var pack Package
 	pack.Duration = duration.String()
+	pack.Total = scrapper.TotalVisitedLink
 
 	for _,node := range solution {
 		pack.Solutions = append(pack.Solutions,node.Paths)
@@ -58,6 +62,7 @@ func bfs_router(context *gin.Context) {
 	} else {
 		context.IndentedJSON(http.StatusNotFound,gin.H{"message":"No Solution"})
 	}
+	scrapper.TotalVisitedLink = 0
 }
 
 func main(){

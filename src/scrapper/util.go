@@ -13,13 +13,14 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
+var TotalVisitedLink int = 0
 var DOMAIN_PREFIX string = "https://en.wikipedia.org"
 var THREADS int = 100
 
 // Define a struct to represent a node in the graph
 type Node struct {
-	Current 	string		 
-	Paths   	[]string	 
+	Current string
+	Paths   []string
 }
 
 // Define a map to keep track of node (link) that has been added to the queue/stack
@@ -28,26 +29,26 @@ var visitedNode = make(map[string]bool)
 
 // Cache
 type LinkData struct {
-	Link string
+	Link       string
 	Neighbours []string
 }
+
 var cache = make(map[string][]string)
 var temp_cache []LinkData
 
-
-func loadCache(){
-	for i:=0; i<len(temp_cache);i++ {
+func loadCache() {
+	for i := 0; i < len(temp_cache); i++ {
 		link := temp_cache[i].Link
 		neighbour := temp_cache[i].Neighbours
-		if(len(cache[link]) == 0) {
+		if len(cache[link]) == 0 {
 			cache[link] = neighbour
 		}
 	}
 }
 
-func writeCache(link string, neighbour []string){
+func writeCache(link string, neighbour []string) {
 	temp_cache = append(temp_cache, LinkData{
-		Link: link,
+		Link:       link,
 		Neighbours: neighbour,
 	})
 }
@@ -62,10 +63,10 @@ func getCache(link string) []string {
 
 func getCacheToNode(main_link Node) []Node {
 	var list_node []Node
-	for _,link := range getCache(main_link.Current) {
+	for _, link := range getCache(main_link.Current) {
 		var temp_Node = Node{
 			Current: link,
-			Paths: append(main_link.Paths,main_link.Current),
+			Paths:   append(main_link.Paths, main_link.Current),
 		}
 		list_node = append(list_node, temp_Node)
 	}
@@ -113,7 +114,7 @@ func getDocument(resp *http.Response) *goquery.Document {
  * @return links: a list of adjacent nodes
  */
 func getAdjacentLinks(active_node Node) []Node {
-	if(!isInCache(active_node.Current)) {
+	if !isInCache(active_node.Current) {
 		// Get the HTML document from the current link
 		link := active_node.Current
 		var links_string []string
@@ -125,14 +126,14 @@ func getAdjacentLinks(active_node Node) []Node {
 		// Filter the links that start with "/wiki" and do not contain ":" or "#"
 		doc.Find("div.mw-content-ltr.mw-parser-output").Find("a").FilterFunction(func(i int, s *goquery.Selection) bool {
 			linkTemp, _ := s.Attr("href")
-			return strings.HasPrefix(linkTemp, "/wiki")  && !(strings.Contains(linkTemp, "."))
+			return strings.HasPrefix(linkTemp, "/wiki") && !(strings.Contains(linkTemp, "."))
 		}).Each(func(i int, s *goquery.Selection) {
 			linkTemp, _ := s.Attr("href")
 			// fmt.Println(DOMAIN_PREFIX + linkTemp)
 			// Create a new node for each link
-			var tempNode =  Node{
-				Current : removeHash(DOMAIN_PREFIX + linkTemp),
-				Paths : append(active_node.Paths, removeHash(active_node.Current)),
+			var tempNode = Node{
+				Current: removeHash(DOMAIN_PREFIX + linkTemp),
+				Paths:   append(active_node.Paths, removeHash(active_node.Current)),
 			}
 			// Append the new node to the list of links
 			if !visitedNode[tempNode.Current] && !unique[tempNode.Current] {
@@ -141,7 +142,7 @@ func getAdjacentLinks(active_node Node) []Node {
 				unique[tempNode.Current] = true
 			}
 		})
-		writeCache(active_node.Current,links_string)
+		writeCache(active_node.Current, links_string)
 		return links
 	} else {
 		return getCacheToNode(active_node)

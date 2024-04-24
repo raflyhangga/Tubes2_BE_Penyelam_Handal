@@ -26,7 +26,7 @@ func breadth_first_search(currentQueue []Node, destinationLink string, hasil *[]
 				isDestinationLinkExist = true
 			}
 		}
-		totalVisitedLink += len(currentQueue)
+		TotalVisitedLink += len(currentQueue)
 
 		if isDestinationLinkExist {
 			// solution is found, return
