@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"wikipedia-scraper-engine/scrapper"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -28,7 +27,7 @@ func ids_router(context *gin.Context) {
 	var pack Package
 	pack.Duration = duration.String()
 	for _,node := range solution {
-		pack.Solutions = append(pack.Solutions, append(node.Paths,link_2))
+		pack.Solutions = append(pack.Solutions,node.Paths)
 	}
 	if(len(solution) != 0) {
 		context.IndentedJSON(http.StatusFound,pack)
@@ -49,8 +48,9 @@ func bfs_router(context *gin.Context) {
 
 	var pack Package
 	pack.Duration = duration.String()
+
 	for _,node := range solution {
-		pack.Solutions = append(pack.Solutions, append(node.Paths,link_2))
+		pack.Solutions = append(pack.Solutions,node.Paths)
 	}
 
 	if(len(solution) != 0) {

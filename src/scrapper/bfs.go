@@ -1,6 +1,7 @@
 package scrapper
 
 import (
+	"fmt"
 	"sync"
 )
 
@@ -21,6 +22,7 @@ import (
 		for _, current_node := range current_queue {
 			visitedNode[current_node.Current] = true
 			if current_node.Current == destination_link {
+				current_node.Paths = append(current_node.Paths, current_node.Current)
 				*hasil = append(*hasil, current_node)
 				isDestinationLinkExist = true
 			}
@@ -37,9 +39,9 @@ import (
 			// make a new queue to store the adjacent links from the current queue
 			var new_queue []Node
 
-			// process the first 100 links in the current queue
+			// process the first THREADS links in the current queue
 			for len(current_queue) > THREADS {
-				// limit the number of goroutines to 100 to avoid spam http request
+				// limit the number of goroutines to THREADS to avoid spam http request
 				wg.Add(THREADS)
 				queue_THREADS_elmt := append([]Node{}, current_queue[:THREADS]...)
 				current_queue = current_queue[THREADS:]

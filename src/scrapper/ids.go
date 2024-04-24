@@ -11,13 +11,13 @@ package scrapper
  func depth_limited_search(current_node Node,link_tujuan string, depth int, hasil *[]Node){
 	if(depth >= 0){
 		if current_node.Current == link_tujuan{
-			current_node.Paths = append(current_node.Paths, current_node.Current)
+			current_node.Paths = append(append(current_node.Paths, current_node.Current),link_tujuan)
 			*hasil = append(*hasil, current_node)
 		} else {
 			tetangga := getAdjacentLinks(current_node)
 			for _,node := range tetangga {
 				if node.Current == link_tujuan {
-					current_node.Paths = append(current_node.Paths, current_node.Current)
+					current_node.Paths = append(append(current_node.Paths, current_node.Current),link_tujuan)
 					*hasil = append(*hasil, current_node)
 				} else {
 					depth_limited_search(node,link_tujuan,depth-1,hasil)
