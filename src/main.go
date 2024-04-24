@@ -16,6 +16,12 @@ type Package struct {
 	Total     int        `json:"total_visited"`
 }
 
+func addDomainPrefix(list *[]string) {
+	for _,value := range *list {
+		value = scrapper.DOMAIN_PREFIX + value
+	}
+}
+
 func ids_router(context *gin.Context) {
 	queryParams := context.Request.URL.Query()
 	link_1 := queryParams.Get("init")
@@ -30,6 +36,7 @@ func ids_router(context *gin.Context) {
 	pack.Duration = duration.String()
 	pack.Total = scrapper.Total_Visited_Link
 	for _, node := range solution {
+		addDomainPrefix(&node.Paths)
 		pack.Solutions = append(pack.Solutions, node.Paths)
 	}
 
@@ -56,6 +63,7 @@ func bfs_router(context *gin.Context) {
 	pack.Duration = duration.String()
 	pack.Total = scrapper.Total_Visited_Link
 	for _, node := range solution {
+		addDomainPrefix(&node.Paths)
 		pack.Solutions = append(pack.Solutions, node.Paths)
 	}
 

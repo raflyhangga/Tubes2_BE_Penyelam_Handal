@@ -40,43 +40,7 @@ var LOCK = false
 var Visited_Node = make(map[string]bool)
 
 // Cache
-var Cache = make(map[string][]string)
-
-// Temporary Cache, because cannot write to map directly in goroutine
-var Temp_Cache []LinkData
-
-/**
- *    FUNCTION
- *
- */
-
-/**
- * Function to load the Cache
- */
-func loadCache() {
-	for i := 0; i < len(Temp_Cache); i++ {
-		link := Temp_Cache[i].Link
-		neighbour := Temp_Cache[i].Neighbours
-
-		if len(Cache[link]) == 0 { // if the link is not in the Cache
-			Cache[link] = neighbour
-		}
-	}
-}
-
-/**
- *
- * Function to write the Cache
- *
- * @param link: the link
- * @param neighbour: a list of adjacent nodes/links
- */
-func writeCache(link string, neighbour []string) {
-	Temp_Cache = append(Temp_Cache, LinkData{
-		Link:       link,
-		Neighbours: neighbour,
-	})
-}
+var Cache = make(map[string][]Node)
 
 /**
  * Function to check if the link is in the Cache
@@ -86,34 +50,6 @@ func writeCache(link string, neighbour []string) {
  */
 func isInCache(link string) bool {
 	return len(Cache[link]) != 0
-}
-
-/**
- * Function to get the list of adjacent nodes from the Cache
- *
- * @param link: the link
- * @return a list of adjacent nodes
- */
-func getCache(link string) []string {
-	return Cache[link]
-}
-
-/**
- * Function to get the adjacent nodes from the Cache
- *
- * @param mainLink: the current node
- * @return a list of adjacent nodes
- */
-func getCacheToNode(mainLink Node) []Node {
-	var listNode []Node
-	for _, link := range getCache(mainLink.Current) {
-		var temp_Node = Node{
-			Current: link,
-			Paths:   append(mainLink.Paths, mainLink.Current),
-		}
-		listNode = append(listNode, temp_Node)
-	}
-	return listNode
 }
 
 /**
@@ -166,48 +102,38 @@ func getDocument(resp *http.Response) *goquery.Document {
  * @return links: a list of adjacent nodes
  */
 func getAdjacentLinks(activeNode Node) []Node {
-	if !isInCache(activeNode.Current) { // If the link is not in the Cache
-		// Get the HTML document from the current link
-		link := DOMAIN_PREFIX + activeNode.Current
-		res := getResponse(link)
-		doc := getDocument(res)
+	// Get the HTML document from the current link
+	link := DOMAIN_PREFIX + activeNode.Current
+	res := getResponse(link)
+	doc := getDocument(res)
 
-		// If the document is nil, return an empty list
-		if doc == nil {
-			return []Node{}
-		} else {
-			var linksString []string        // to store the links to add into the Temp_Cache
-			unique := make(map[string]bool) // to make sure that the link is unique
+	// If the document is nil, return an empty list
+	if doc == nil {
+		return []Node{}
+	} else {
+		unique := make(map[string]bool) // to make sure that the link is unique
 
-			// Find all the links in the HTML document
-			var linkNodes []Node
-			// Filter the links that start with "/wiki/" and do not contain "."
-			doc.Find("div.mw-content-ltr.mw-parser-output").Find("a").FilterFunction(func(i int, s *goquery.Selection) bool {
-				linkTemp, _ := s.Attr("href")
-				return strings.HasPrefix(linkTemp, "/wiki") && !(strings.Contains(linkTemp, "."))
-			}).Each(func(i int, s *goquery.Selection) {
-				linkTemp, _ := s.Attr("href")
-				// Create a new node for each link
-				var tempNode = Node{
-					Current: removeHash(linkTemp),
-					Paths:   append(activeNode.Paths, removeHash(activeNode.Current)),
-				}
+		// Find all the links in the HTML document
+		var linkNodes []Node
+		// Filter the links that start with "/wiki/" and do not contain "."
+		doc.Find("div.mw-content-ltr.mw-parser-output").Find("a").FilterFunction(func(i int, s *goquery.Selection) bool {
+			linkTemp, _ := s.Attr("href")
+			return strings.HasPrefix(linkTemp, "/wiki") && !(strings.Contains(linkTemp, "."))
+		}).Each(func(i int, s *goquery.Selection) {
+			linkTemp, _ := s.Attr("href")
+			// Create a new node for each link
+			var tempNode = Node{
+				Current: removeHash(linkTemp),
+				Paths:   append(activeNode.Paths, removeHash(activeNode.Current)),
+			}
 
-				// Append the new node to the list of links
-				if !Visited_Node[tempNode.Current] && !unique[tempNode.Current] {
-					linkNodes = append(linkNodes, tempNode)
-					linksString = append(linksString, tempNode.Current)
-					unique[tempNode.Current] = true
-				}
-			})
-
-			// Write the Cache
-			writeCache(activeNode.Current, linksString)
-
-			return linkNodes
-		}
-	} else { // If the link is in the Cache
-		return getCacheToNode(activeNode)
+			// Append the new node to the list of links
+			if !Visited_Node[tempNode.Current] && !unique[tempNode.Current] {
+				linkNodes = append(linkNodes, tempNode)
+				unique[tempNode.Current] = true
+			}
+		})
+		return linkNodes
 	}
 }
 

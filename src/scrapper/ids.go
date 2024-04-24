@@ -1,5 +1,7 @@
 package scrapper
 
+import "fmt"
+
 /**
  * Function to perform Depth Limited Search (DLS) algorithm
  *
@@ -13,13 +15,21 @@ func depth_limited_search(currentNode Node, destinationLink string, depth int, h
 
 	if depth == 0 { // if the current node is the ddepest node
 		if currentNode.Current == destinationLink {
+			currentNode.Paths = append(currentNode.Paths, currentNode.Current)
 			*hasil = append(*hasil, currentNode)
 		}
 	} else {
 		if currentNode.Current == destinationLink { // check is the current node is destination node
+			currentNode.Paths = append(currentNode.Paths, currentNode.Current)
 			*hasil = append(*hasil, currentNode)
 		} else { // if the current node is not the destination node
-			tetangga := getAdjacentLinks(currentNode)
+			var tetangga []Node
+			if(isInCache(currentNode.Current)) {
+				tetangga = Cache[currentNode.Current]
+			} else {
+				tetangga = getAdjacentLinks(currentNode)
+				Cache[currentNode.Current] = tetangga
+			}
 			for _, node := range tetangga {
 				depth_limited_search(node, destinationLink, depth-1, hasil)
 			}
@@ -43,6 +53,7 @@ func iterative_deepening_search(startLink string, destinationLink string, hasil 
 	depth := 0
 
 	for len(solutions) == 0 {
+		fmt.Println("Starting new depth..")
 		depth_limited_search(initial, destinationLink, depth, &solutions)
 		depth++
 	}
