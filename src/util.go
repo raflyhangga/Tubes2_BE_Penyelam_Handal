@@ -24,21 +24,22 @@ type Package struct {
 
 func getRequests(context *gin.Context) (source string, goal string, algorithm_mode string, solution_mode string) {
 	queryParams := context.Request.URL.Query()
-	algorithm_mode = context.Param("algorithm")
-	source = queryParams.Get("source")
-	goal = queryParams.Get("goal")
-	solution_mode = context.Param("solutions")
+	algorithm_mode = context.Param(ALGORITHM_PARAM)
+	source = queryParams.Get(SOURCE_QUERY)
+	goal = queryParams.Get(GOAL_QUERY)
+	solution_mode = context.Param(SOLUTIONS_PARAM)
 
 	return source,goal,algorithm_mode,solution_mode
 }
 
 func isLinkValid(context *gin.Context) bool {
-	queryParams := context.Request.URL.Query()
-	algorithm_mode := context.Param(ALGORITHM_PARAM)
-	source := queryParams.Get(SOURCE_QUERY)
-	goal := queryParams.Get(GOAL_QUERY)
-	solution_mode := context.Param(SOLUTIONS_PARAM)
-	return  len(source) != 0 && len(goal) != 0 && len(solution_mode) != 0 && (algorithm_mode == BFS_PARAM || algorithm_mode == IDS_PARAM) && (solution_mode == scrapper.SINGLE_PARAM || solution_mode == scrapper.MANY_PARAM)
+	source, goal, algorithm_mode, solution_mode := getRequests(context)
+	return (
+		len(source) != 0 && 
+		len(goal) != 0 && 
+		len(solution_mode) != 0 && 
+		(algorithm_mode == BFS_PARAM || algorithm_mode == IDS_PARAM) && 
+		(solution_mode == scrapper.SINGLE_PARAM || solution_mode == scrapper.MANY_PARAM))
 }
 
 func wrapPackage(durasi time.Duration,  solusi []scrapper.Node)Package{
