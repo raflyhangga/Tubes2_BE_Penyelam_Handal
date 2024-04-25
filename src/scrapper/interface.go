@@ -22,15 +22,17 @@ func printSolution(solutions []Node, duration time.Duration) {
 func IDS_interface(link_awal string, link_tujuan string, sum_solution string) ([]Node, time.Duration) {
 	// find the solution using Iterative Deepening Search (IDS) algorithm
 	var solutions []Node
-	// if len(Cache) == 0 {
-	// 	readCacheFromFile()
-	// }
+
+	if len(Cache) == 0 {
+		readCacheFromFile()
+	}
 	startTime := time.Now()
 	iterative_deepening_search(link_awal, link_tujuan, sum_solution, &solutions)
 	duration := time.Since(startTime)
 
 	printSolution(solutions, duration)
-	// writeCacheToFile()
+	writeCacheToFile()
+
 	return solutions, duration
 }
 
