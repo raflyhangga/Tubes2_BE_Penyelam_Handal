@@ -11,7 +11,7 @@ import (
  * @param destinationLink: link of the destination link
  * @param hasil: a list of nodes that contain destination node
  */
-func breadth_first_search_many_solution(currentQueue []Node, destinationLink string, hasil *[]Node) {
+func breadth_first_search_many_solution(currentQueue []*Node, destinationLink string, hasil *[]Node) {
 	if len(currentQueue) == 0 {
 		return
 	} else {
@@ -21,7 +21,7 @@ func breadth_first_search_many_solution(currentQueue []Node, destinationLink str
 		for _, current_node := range currentQueue {
 			Visited_Node[current_node.Current] = true
 			if current_node.Current == destinationLink {
-				*hasil = append(*hasil, current_node)
+				*hasil = append(*hasil, *current_node)
 				isDestinationLinkExist = true
 			}
 		}
@@ -36,7 +36,7 @@ func breadth_first_search_many_solution(currentQueue []Node, destinationLink str
 			var wg sync.WaitGroup
 
 			// make a new queue to store the adjacent links from the current queue
-			var newQueue []Node
+			var newQueue []*Node
 
 			// process queue in blocks of THREADS to avoid spam http request
 			startIndeks := 0
@@ -46,11 +46,15 @@ func breadth_first_search_many_solution(currentQueue []Node, destinationLink str
 				wg.Add(THREADS)
 
 				for i := startIndeks; i < endIndeks; i++ {
-					go func(current_node Node) {
+					go func(current_node *Node) {
 						defer wg.Done()
 						// get the adjacent links from the current node
-						adjacentLinks := getAdjacentLinks(current_node)
-						newQueue = append(newQueue, adjacentLinks...)
+						for _,link := range getAdjacentLinks(*current_node) {
+							newQueue = append(newQueue, &Node{
+								Current: link,
+								Paths: current_node,
+							})
+						}
 					}(currentQueue[i])
 				}
 
@@ -62,11 +66,16 @@ func breadth_first_search_many_solution(currentQueue []Node, destinationLink str
 			// process the remaining links
 			wg.Add(len(currentQueue) - startIndeks)
 			for i := startIndeks; i < len(currentQueue); i++ {
-				go func(current_node Node) {
+				go func(current_node *Node) {
 					defer wg.Done()
 					// get the adjacent links from the current node
-					adjacentLinks := getAdjacentLinks(current_node)
-					newQueue = append(newQueue, adjacentLinks...)
+
+					for _,link := range getAdjacentLinks(*current_node) {
+						newQueue = append(newQueue, &Node{
+							Current: link,
+							Paths: current_node,
+						})
+					}
 				}(currentQueue[i])
 			}
 			// wait for all goroutines to finish
@@ -85,7 +94,7 @@ func breadth_first_search_many_solution(currentQueue []Node, destinationLink str
  * @param destinationLink: link of the destination link
  * @param hasil: a list of nodes that contain destination node
  */
-func breadth_first_search_one_solution(currentQueue []Node, destinationLink string, hasil *[]Node) {
+func breadth_first_search_one_solution(currentQueue []*Node, destinationLink string, hasil *[]Node) {
 	if len(currentQueue) == 0 {
 		return
 	} else {
@@ -95,7 +104,7 @@ func breadth_first_search_one_solution(currentQueue []Node, destinationLink stri
 			Visited_Node[current_node.Current] = true
 			Total_Visited_Link++
 			if current_node.Current == destinationLink {
-				*hasil = append(*hasil, current_node)
+				*hasil = append(*hasil, *current_node)
 				return
 			}
 		}
@@ -105,7 +114,7 @@ func breadth_first_search_one_solution(currentQueue []Node, destinationLink stri
 		var wg sync.WaitGroup
 
 		// make a new queue to store the adjacent links from the current queue
-		var newQueue []Node
+		var newQueue []*Node
 
 		// process queue in blocks of THREADS to avoid spam http request
 		startIndeks := 0
@@ -115,11 +124,15 @@ func breadth_first_search_one_solution(currentQueue []Node, destinationLink stri
 			wg.Add(THREADS)
 
 			for i := startIndeks; i < endIndeks; i++ {
-				go func(current_node Node) {
+				go func(current_node *Node) {
 					defer wg.Done()
 					// get the adjacent links from the current node
-					adjacentLinks := getAdjacentLinks(current_node)
-					newQueue = append(newQueue, adjacentLinks...)
+					for _,link := range getAdjacentLinks(*current_node) {
+						newQueue = append(newQueue, &Node{
+							Current: link,
+							Paths: current_node,
+						})
+					}
 				}(currentQueue[i])
 			}
 
@@ -131,11 +144,15 @@ func breadth_first_search_one_solution(currentQueue []Node, destinationLink stri
 		// process the remaining links
 		wg.Add(len(currentQueue) - startIndeks)
 		for i := startIndeks; i < len(currentQueue); i++ {
-			go func(current_node Node) {
+			go func(current_node *Node) {
 				defer wg.Done()
 				// get the adjacent links from the current node
-				adjacentLinks := getAdjacentLinks(current_node)
-				newQueue = append(newQueue, adjacentLinks...)
+				for _,link := range getAdjacentLinks(*current_node) {
+					newQueue = append(newQueue, &Node{
+						Current: link,
+						Paths: current_node,
+					})
+				}
 			}(currentQueue[i])
 		}
 		// wait for all goroutines to finish

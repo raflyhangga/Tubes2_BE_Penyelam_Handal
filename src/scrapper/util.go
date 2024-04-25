@@ -16,10 +16,12 @@ import (
  *    DATA STRUCTURE
  *
  */
+
 // Define a struct to represent a node in the graph
 type Node struct {
 	Current string
-	Paths   []string
+	Paths   *Node
+	// Neighbours []string
 }
 
 // Define a struct to represent a cache format in file
@@ -41,7 +43,7 @@ var Total_Visited_Link int = 0
 var Visited_Node = make(map[string]bool)
 
 // Cache
-var Cache = make(map[string][]Node)
+var Cache = make(map[string][]string)
 
 /**
  *    FUNCTION
@@ -107,39 +109,36 @@ func getDocument(resp *http.Response) *goquery.Document {
  * @param activeNode: the current node
  * @return links: a list of adjacent nodes
  */
-func getAdjacentLinks(activeNode Node) []Node {
+func getAdjacentLinks(activeNode Node) []string {
 	// Get the HTML document from the current link
 	link := DOMAIN_PREFIX + activeNode.Current
 	res := getResponse(link)
 	doc := getDocument(res)
 
 	// If the document is nil, return an empty list
-	if doc == nil {
-		return []Node{}
-	} else {
+	if doc != nil {
 		unique := make(map[string]bool) // to make sure that the link is unique
 
 		// Find all the links in the HTML document
-		var linkNodes []Node
+		var link_list []string
 		// Filter the links that start with "/wiki/" and do not contain "."
 		doc.Find("div.mw-content-ltr.mw-parser-output").Find("a").FilterFunction(func(i int, s *goquery.Selection) bool {
-			linkTemp, _ := s.Attr("href")
-			return strings.HasPrefix(linkTemp, "/wiki") && !(strings.Contains(linkTemp, "."))
+			link_temp, _ := s.Attr("href")
+			return strings.HasPrefix(link_temp, "/wiki") && !(strings.Contains(link_temp, "."))
 		}).Each(func(i int, s *goquery.Selection) {
-			linkTemp, _ := s.Attr("href")
+			link_temp, _ := s.Attr("href")
 			// Create a new node for each link
-			var tempNode = Node{
-				Current: removeHash(linkTemp),
-				Paths:   append(activeNode.Paths, removeHash(activeNode.Current)),
-			}
+			link_processed := removeHash(link_temp)
 
 			// Append the new node to the list of links
-			if !Visited_Node[tempNode.Current] && !unique[tempNode.Current] {
-				linkNodes = append(linkNodes, tempNode)
-				unique[tempNode.Current] = true
+			if !Visited_Node[link_processed] && !unique[link_processed] {
+				link_list = append(link_list,  removeHash(link_processed))
+				unique[link_processed] = true
 			}
 		})
-		return linkNodes
+		return link_list
+	} else {
+		return nil
 	}
 }
 
@@ -166,9 +165,7 @@ func writeCacheToFile() {
 	for key, value := range Cache {
 		var temp CacheFile
 		temp.Key = key
-		for _, node := range value {
-			temp.Neighbours = append(temp.Neighbours, node.Current)
-		}
+		temp.Neighbours = append(temp.Neighbours, value...)
 		cacheFile = append(cacheFile, temp)
 	}
 
@@ -218,15 +215,15 @@ func readCacheFromFile() {
 
 	// write cache to map
 	for _, value := range cacheFile {
-		var temp []Node
-		for _, node := range value.Neighbours {
-			temp = append(temp, Node{Current: node})
-		}
+		var temp []string
+		temp = append(temp,value.Neighbours...)
 		Cache[value.Key] = temp
 	}
 
 	fmt.Println("Cache has been read from cache.json")
 }
+
+
 
 func AddDomainPrefix(list []string) []string {
 	realLink := make([]string, len(list))
@@ -234,4 +231,13 @@ func AddDomainPrefix(list []string) []string {
 		realLink[i] = DOMAIN_PREFIX + link
 	}
 	return realLink
+}
+
+func reversePath(arr []string) []string {
+	n := len(arr)
+	reversed := make([]string, n)
+	for i := 0; i < n; i++ {
+		reversed[i] = arr[n-i-1]
+	}
+	return reversed
 }

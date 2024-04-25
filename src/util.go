@@ -47,7 +47,7 @@ func wrapPackage(durasi time.Duration,  solusi []scrapper.Node)Package{
 	pack.Duration = durasi.String()
 	pack.Total = scrapper.Total_Visited_Link
 	for _, node := range solusi {
-		path := scrapper.AddDomainPrefix(node.Paths)
+		path := scrapper.AddDomainPrefix(scrapper.GetPath(node.Paths))
 		current := scrapper.DOMAIN_PREFIX + node.Current
 		pack.Solutions = append(pack.Solutions, append(path, current))
 	}

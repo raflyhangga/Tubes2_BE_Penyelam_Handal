@@ -16,17 +16,27 @@ func printRequestedParameters(link_awal string, link_tujuan string) {
 	fmt.Println(link_tujuan)
 }
 
+func GetPath(node *Node) []string {
+	var path []string
+
+	var itr_node *Node = node
+	for itr_node != nil {
+		path = append(path, itr_node.Current)
+		itr_node = itr_node.Paths 
+	}
+	return reversePath(path)
+}
+
 func printSolution(solutions []Node, duration time.Duration) {
 	fmt.Println("======================= SOLUTION =======================")
 	fmt.Println("Found", len(solutions), "solutions in", duration)
 	fmt.Println("Total of links visited:", Total_Visited_Link)
 
-	for i, value := range solutions {
+	for i, Node := range solutions {
 		fmt.Println("Solution -", i+1)
-		for k, path := range value.Paths {
+		for k, path := range GetPath(&Node) {
 			fmt.Println(k+1, path)
 		}
-		fmt.Println(len(solutions[i].Paths)+1, value.Current)
 	}
 }
 
@@ -57,19 +67,21 @@ func IDS_interface(link_awal string, link_tujuan string, solution_mode string) (
 func BFS_interface(link_awal string, link_tujuan string, solution_mode string) ([]Node, time.Duration) {
 	printRequestedParameters(link_awal,link_tujuan)
 	fmt.Print("Starting Breadth First Search ")
-	var initial = Node{
+	var initial []*Node
+	initial = append(initial, &Node{
 		Current: link_awal,
-	}
+		Paths: nil,
+	})
 
 	// find the solution using Breadth First Search (BFS) algorithm
 	var solutions []Node
 	startTime := time.Now()
 	if solution_mode == SINGLE_PARAM {
 		fmt.Println("single solution..")
-		breadth_first_search_one_solution([]Node{initial}, link_tujuan, &solutions)
+		breadth_first_search_one_solution(initial, link_tujuan, &solutions)
 	} else if solution_mode == MANY_PARAM {
 		fmt.Println("multiple solution..")
-		breadth_first_search_many_solution([]Node{initial}, link_tujuan, &solutions)
+		breadth_first_search_many_solution(initial, link_tujuan, &solutions)
 	}
 	duration := time.Since(startTime)
 
