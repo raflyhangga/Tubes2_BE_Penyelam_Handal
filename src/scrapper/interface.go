@@ -32,10 +32,12 @@ func printSolution(solutions []Node, duration time.Duration) {
 
 func IDS_interface(link_awal string, link_tujuan string, solution_mode string) ([]Node, time.Duration) {
 	printRequestedParameters(link_awal,link_tujuan)
+	if(len(Cache) == 0) {
+		readCacheFromFile()
+	}
 	fmt.Print("Starting Iterative Deepening Search ")
 	var solutions []Node
 
-	readCacheFromFile()
 	startTime := time.Now()
 	if solution_mode == SINGLE_PARAM {
 		fmt.Println("single solution..")
