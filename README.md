@@ -11,7 +11,7 @@ go get -u github.com/gin-gonic/gin
 
 To run the project, execute
 ```
-go run main.go
+go run .
 ```
 
 ## API format
