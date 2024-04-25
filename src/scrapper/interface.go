@@ -5,6 +5,14 @@ import (
 	"time"
 )
 
+func printRequestedParameters(link_awal string, link_tujuan string) {
+	fmt.Println("Requested Paramters:")
+	fmt.Print("Source: ")
+	fmt.Println(link_awal)
+	fmt.Print("Goal: ")
+	fmt.Println(link_tujuan)
+}
+
 func printSolution(solutions []Node, duration time.Duration) {
 	fmt.Println("======================= SOLUTION =======================")
 	fmt.Println("Found", len(solutions), "solutions in", duration)
@@ -19,15 +27,18 @@ func printSolution(solutions []Node, duration time.Duration) {
 	}
 }
 
-func IDS_interface(link_awal string, link_tujuan string, sum_solution string) ([]Node, time.Duration) {
-	// find the solution using Iterative Deepening Search (IDS) algorithm
+func IDS_interface(link_awal string, link_tujuan string, solution_mode string) ([]Node, time.Duration) {
+	printRequestedParameters(link_awal,link_tujuan)
+	fmt.Println("Starting Iterative Deepening Search...")
 	var solutions []Node
 
-	if len(Cache) == 0 {
-		readCacheFromFile()
-	}
+	readCacheFromFile()
 	startTime := time.Now()
-	iterative_deepening_search(link_awal, link_tujuan, sum_solution, &solutions)
+	if solution_mode == "single" {
+		iterative_deepening_search_single(link_awal, link_tujuan, &solutions)
+	} else if solution_mode == "many" {
+		iterative_deepening_search_many(link_awal, link_tujuan, &solutions)
+	}
 	duration := time.Since(startTime)
 
 	printSolution(solutions, duration)
@@ -36,7 +47,9 @@ func IDS_interface(link_awal string, link_tujuan string, sum_solution string) ([
 	return solutions, duration
 }
 
-func BFS_interface(link_awal string, link_tujuan string, sum_solution string) ([]Node, time.Duration) {
+func BFS_interface(link_awal string, link_tujuan string, solution_mode string) ([]Node, time.Duration) {
+	printRequestedParameters(link_awal,link_tujuan)
+	fmt.Println("Starting Breadth First Search...")
 	var initial = Node{
 		Current: link_awal,
 	}
@@ -44,9 +57,9 @@ func BFS_interface(link_awal string, link_tujuan string, sum_solution string) ([
 	// find the solution using Breadth First Search (BFS) algorithm
 	var solutions []Node
 	startTime := time.Now()
-	if sum_solution == "1" {
+	if solution_mode == "single" {
 		breadth_first_search_one_solution([]Node{initial}, link_tujuan, &solutions)
-	} else if sum_solution == "0" {
+	} else if solution_mode == "many" {
 		breadth_first_search_many_solution([]Node{initial}, link_tujuan, &solutions)
 	}
 	duration := time.Since(startTime)

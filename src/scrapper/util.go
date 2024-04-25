@@ -227,3 +227,11 @@ func readCacheFromFile() {
 
 	fmt.Println("Cache has been read from cache.json")
 }
+
+func AddDomainPrefix(list []string) []string {
+	realLink := make([]string, len(list))
+	for i, link := range list {
+		realLink[i] = DOMAIN_PREFIX + link
+	}
+	return realLink
+}

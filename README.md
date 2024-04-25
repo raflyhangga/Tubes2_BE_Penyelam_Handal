@@ -13,3 +13,10 @@ To run the project, execute
 ```
 go run main.go
 ```
+
+## API format
+```
+localhost:9090/{algorithm}/{results}?source="{source_title}"&goal"{goal_title}"
+```
+1. algorithm = ```bfs / ids```
+2. results = ```single/many```

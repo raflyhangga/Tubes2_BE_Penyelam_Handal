@@ -98,7 +98,7 @@ func depth_limited_search_one_solution(currentNode Node, destinationLink string,
  * @param destinationLink: destination link
  * @param hasil: a list of nodes that contain the path from the start node to the destination node
  */
-func iterative_deepening_search(startLink string, destinationLink string, sumSolution string, hasil *[]Node) {
+func iterative_deepening_search_single(startLink string, destinationLink string, hasil *[]Node) {
 	var initial = Node{
 		Current: startLink,
 	}
@@ -106,18 +106,27 @@ func iterative_deepening_search(startLink string, destinationLink string, sumSol
 	var solutions []Node
 	depth := 0
 
-	if sumSolution == "1" {
-		for len(solutions) == 0 {
-			fmt.Println("Starting new depth..")
-			depth_limited_search_one_solution(initial, destinationLink, depth, &solutions)
-			depth++
-		}
-	} else if sumSolution == "0" {
-		for len(solutions) == 0 {
-			fmt.Println("Starting new depth..")
-			depth_limited_search_many_solution(initial, destinationLink, depth, &solutions)
-			depth++
-		}
+	for len(solutions) == 0 {
+		fmt.Println("Starting new depth..")
+		depth_limited_search_one_solution(initial, destinationLink, depth, &solutions)
+		depth++
+	}
+
+	*hasil = solutions
+}
+
+func iterative_deepening_search_many(startLink string, destinationLink string, hasil *[]Node) {
+	var initial = Node{
+		Current: startLink,
+	}
+
+	var solutions []Node
+	depth := 0
+
+	for len(solutions) == 0 {
+		fmt.Println("Starting new depth..")
+		depth_limited_search_many_solution(initial, destinationLink, depth, &solutions)
+		depth++
 	}
 
 	*hasil = solutions
