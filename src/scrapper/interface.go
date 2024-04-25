@@ -60,9 +60,9 @@ func BFS_interface(link_awal string, link_tujuan string, solution_mode string) (
 	// find the solution using Breadth First Search (BFS) algorithm
 	var solutions []Node
 	startTime := time.Now()
-	if solution_mode == "single" {
+	if solution_mode == SINGLE_PARAM {
 		breadth_first_search_one_solution([]Node{initial}, link_tujuan, &solutions)
-	} else if solution_mode == "many" {
+	} else if solution_mode == MANY_PARAM {
 		breadth_first_search_many_solution([]Node{initial}, link_tujuan, &solutions)
 	}
 	duration := time.Since(startTime)
