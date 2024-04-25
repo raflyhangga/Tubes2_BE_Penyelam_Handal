@@ -33,7 +33,7 @@ type CacheFile struct {
  *
  */
 var DOMAIN_PREFIX string = "https://en.wikipedia.org"
-var THREADS int = 250
+var THREADS int = 100
 var Total_Visited_Link int = 0
 
 // Define a map to keep track of node (link) that has been added to the queue/stack

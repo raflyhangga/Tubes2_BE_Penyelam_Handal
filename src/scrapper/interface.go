@@ -32,14 +32,16 @@ func printSolution(solutions []Node, duration time.Duration) {
 
 func IDS_interface(link_awal string, link_tujuan string, solution_mode string) ([]Node, time.Duration) {
 	printRequestedParameters(link_awal,link_tujuan)
-	fmt.Println("Starting Iterative Deepening Search...")
+	fmt.Print("Starting Iterative Deepening Search ")
 	var solutions []Node
 
 	readCacheFromFile()
 	startTime := time.Now()
 	if solution_mode == SINGLE_PARAM {
+		fmt.Println("single solution..")
 		iterative_deepening_search_single(link_awal, link_tujuan, &solutions)
 	} else if solution_mode == MANY_PARAM {
+		fmt.Println("multiple solution..")
 		iterative_deepening_search_many(link_awal, link_tujuan, &solutions)
 	}
 	duration := time.Since(startTime)
@@ -52,7 +54,7 @@ func IDS_interface(link_awal string, link_tujuan string, solution_mode string) (
 
 func BFS_interface(link_awal string, link_tujuan string, solution_mode string) ([]Node, time.Duration) {
 	printRequestedParameters(link_awal,link_tujuan)
-	fmt.Println("Starting Breadth First Search...")
+	fmt.Print("Starting Breadth First Search ")
 	var initial = Node{
 		Current: link_awal,
 	}
@@ -61,8 +63,10 @@ func BFS_interface(link_awal string, link_tujuan string, solution_mode string) (
 	var solutions []Node
 	startTime := time.Now()
 	if solution_mode == SINGLE_PARAM {
+		fmt.Println("single solution..")
 		breadth_first_search_one_solution([]Node{initial}, link_tujuan, &solutions)
 	} else if solution_mode == MANY_PARAM {
+		fmt.Println("multiple solution..")
 		breadth_first_search_many_solution([]Node{initial}, link_tujuan, &solutions)
 	}
 	duration := time.Since(startTime)
