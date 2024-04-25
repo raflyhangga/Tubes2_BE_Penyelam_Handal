@@ -1,9 +1,11 @@
 package scrapper
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -20,10 +22,10 @@ type Node struct {
 	Paths   []string
 }
 
-// Cache
-type LinkData struct {
-	Link       string
-	Neighbours []string
+// Define a struct to represent a cache format in file
+type CacheFile struct {
+	Key        string   `json:"key"`
+	Neighbours []string `json:"Node"`
 }
 
 /**
@@ -31,9 +33,8 @@ type LinkData struct {
  *
  */
 var DOMAIN_PREFIX string = "https://en.wikipedia.org"
-var THREADS int = 100
+var THREADS int = 250
 var Total_Visited_Link int = 0
-var LOCK = false
 
 // Define a map to keep track of node (link) that has been added to the queue/stack
 // if the node is added, the value is true, otherwise false
@@ -41,6 +42,11 @@ var Visited_Node = make(map[string]bool)
 
 // Cache
 var Cache = make(map[string][]Node)
+
+/**
+ *    FUNCTION
+ *
+ */
 
 /**
  * Function to check if the link is in the Cache
@@ -149,4 +155,75 @@ func removeHash(link string) string {
 		return link
 	}
 	return link[:lastIndex]
+}
+
+/**
+ * Function to write the cache to a JSON file
+ */
+func writeCacheToFile() {
+	// write cache to struct
+	var cacheFile []CacheFile
+	for key, value := range Cache {
+		var temp CacheFile
+		temp.Key = key
+		for _, node := range value {
+			temp.Neighbours = append(temp.Neighbours, node.Current)
+		}
+		cacheFile = append(cacheFile, temp)
+	}
+
+	// Marshal data slice into JSON
+	jsonData, err := json.MarshalIndent(cacheFile, "", "    ")
+	if err != nil {
+		fmt.Println("Error marshalling JSON:", err)
+		return
+	}
+
+	// write cache to file
+	file, err := os.Create("cache.json")
+	if err != nil {
+		fmt.Println("Failed to create cache file")
+		return
+	}
+	defer file.Close()
+
+	_, err = file.Write(jsonData)
+	if err != nil {
+		fmt.Println("Error writing cache to file:", err)
+		return
+	}
+
+	fmt.Println("Cache has been written to cache.json")
+}
+
+/**
+ * Function to read the cache from a JSON file
+ */
+func readCacheFromFile() {
+	// read cache from file
+	file, err := os.Open("cache.json")
+	if err != nil {
+		fmt.Println("Failed to open cache file")
+		return
+	}
+	defer file.Close()
+
+	// Unmarshal JSON data into a slice of structs
+	var cacheFile []CacheFile
+	err = json.NewDecoder(file).Decode(&cacheFile)
+	if err != nil {
+		fmt.Println("Error unmarshalling JSON:", err)
+		return
+	}
+
+	// write cache to map
+	for _, value := range cacheFile {
+		var temp []Node
+		for _, node := range value.Neighbours {
+			temp = append(temp, Node{Current: node})
+		}
+		Cache[value.Key] = temp
+	}
+
+	fmt.Println("Cache has been read from cache.json")
 }
