@@ -13,8 +13,6 @@ const ALGORITHM_PARAM = "algorithm"
 const SOLUTIONS_PARAM = "solutions"
 const BFS_PARAM = "bfs"
 const IDS_PARAM = "ids"
-const SINGLE_PARAM = "single"
-const MANY_PARAM = "many"
 const SOURCE_QUERY = "source"
 const GOAL_QUERY = "goal"
 
@@ -40,7 +38,7 @@ func isLinkValid(context *gin.Context) bool {
 	source := queryParams.Get(SOURCE_QUERY)
 	goal := queryParams.Get(GOAL_QUERY)
 	solution_mode := context.Param(SOLUTIONS_PARAM)
-	return  len(source) != 0 && len(goal) != 0 && len(solution_mode) != 0 && (algorithm_mode == BFS_PARAM || algorithm_mode == IDS_PARAM) && (solution_mode == SINGLE_PARAM || solution_mode == MANY_PARAM)
+	return  len(source) != 0 && len(goal) != 0 && len(solution_mode) != 0 && (algorithm_mode == BFS_PARAM || algorithm_mode == IDS_PARAM) && (solution_mode == scrapper.SINGLE_PARAM || solution_mode == scrapper.MANY_PARAM)
 }
 
 func wrapPackage(durasi time.Duration,  solusi []scrapper.Node)Package{

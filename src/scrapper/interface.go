@@ -5,6 +5,9 @@ import (
 	"time"
 )
 
+const SINGLE_PARAM = "single"
+const MANY_PARAM = "many"
+
 func printRequestedParameters(link_awal string, link_tujuan string) {
 	fmt.Println("Requested Paramters:")
 	fmt.Print("Source: ")
@@ -34,9 +37,9 @@ func IDS_interface(link_awal string, link_tujuan string, solution_mode string) (
 
 	readCacheFromFile()
 	startTime := time.Now()
-	if solution_mode == "single" {
+	if solution_mode == SINGLE_PARAM {
 		iterative_deepening_search_single(link_awal, link_tujuan, &solutions)
-	} else if solution_mode == "many" {
+	} else if solution_mode == MANY_PARAM {
 		iterative_deepening_search_many(link_awal, link_tujuan, &solutions)
 	}
 	duration := time.Since(startTime)
