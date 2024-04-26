@@ -49,7 +49,7 @@ func breadth_first_search_many_solution(currentQueue []Node, destinationLink str
 					go func(current_node Node) {
 						defer wg.Done()
 						// get the adjacent links from the current node
-						adjacentLinks := getAdjacentLinks(current_node)
+						adjacentLinks := getAdjacentLinks(current_node, "bfs")
 						newQueue = append(newQueue, adjacentLinks...)
 					}(currentQueue[i])
 				}
@@ -65,7 +65,7 @@ func breadth_first_search_many_solution(currentQueue []Node, destinationLink str
 				go func(current_node Node) {
 					defer wg.Done()
 					// get the adjacent links from the current node
-					adjacentLinks := getAdjacentLinks(current_node)
+					adjacentLinks := getAdjacentLinks(current_node, "bfs")
 					newQueue = append(newQueue, adjacentLinks...)
 				}(currentQueue[i])
 			}
@@ -118,7 +118,7 @@ func breadth_first_search_one_solution(currentQueue []Node, destinationLink stri
 				go func(current_node Node) {
 					defer wg.Done()
 					// get the adjacent links from the current node
-					adjacentLinks := getAdjacentLinks(current_node)
+					adjacentLinks := getAdjacentLinks(current_node, "bfs")
 					newQueue = append(newQueue, adjacentLinks...)
 				}(currentQueue[i])
 			}
@@ -134,7 +134,7 @@ func breadth_first_search_one_solution(currentQueue []Node, destinationLink stri
 			go func(current_node Node) {
 				defer wg.Done()
 				// get the adjacent links from the current node
-				adjacentLinks := getAdjacentLinks(current_node)
+				adjacentLinks := getAdjacentLinks(current_node, "bfs")
 				newQueue = append(newQueue, adjacentLinks...)
 			}(currentQueue[i])
 		}

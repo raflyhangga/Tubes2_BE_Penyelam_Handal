@@ -107,7 +107,7 @@ func getDocument(resp *http.Response) *goquery.Document {
  * @param activeNode: the current node
  * @return links: a list of adjacent nodes
  */
-func getAdjacentLinks(activeNode Node) []Node {
+func getAdjacentLinks(activeNode Node, mode string) []Node {
 	// Get the HTML document from the current link
 	link := DOMAIN_PREFIX + activeNode.Current
 	res := getResponse(link)
@@ -128,9 +128,11 @@ func getAdjacentLinks(activeNode Node) []Node {
 		}).Each(func(i int, s *goquery.Selection) {
 			linkTemp, _ := s.Attr("href")
 			// Create a new node for each link
-			var tempNode = Node{
-				Current: removeHash(linkTemp),
-				Paths:   append(activeNode.Paths, removeHash(activeNode.Current)),
+			var tempNode Node
+			tempNode.Current = removeHash(linkTemp)
+
+			if mode == "bfs" {
+				tempNode.Paths = append(activeNode.Paths, removeHash(activeNode.Current))
 			}
 
 			// Append the new node to the list of links
