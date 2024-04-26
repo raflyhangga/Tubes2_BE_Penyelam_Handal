@@ -7,8 +7,7 @@ import (
 
 func main() {
 	router := gin.Default()
-	
 	router.Use(cors.Default())
-	router.GET("/:algorithm/:solutions", main_router)
-	router.Run("localhost:9090")
+	router.GET(ENDPOINT, main_router)
+	router.Run(URL)
 }

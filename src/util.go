@@ -15,6 +15,8 @@ const BFS_PARAM = "bfs"
 const IDS_PARAM = "ids"
 const SOURCE_QUERY = "source"
 const GOAL_QUERY = "goal"
+const ENDPOINT = "/:"+ALGORITHM_PARAM+"/:"+SOLUTIONS_PARAM
+const URL = "localhost:9090"
 
 type Package struct {
 	Solutions [][]string `json:"solutions"`
@@ -22,6 +24,7 @@ type Package struct {
 	Total     int        `json:"total_visited"`
 }
 
+// Get the needed request for BFS / IDS Algorithm
 func getRequests(context *gin.Context) (source string, goal string, algorithm_mode string, solution_mode string) {
 	queryParams := context.Request.URL.Query()
 	algorithm_mode = context.Param(ALGORITHM_PARAM)
@@ -32,6 +35,7 @@ func getRequests(context *gin.Context) (source string, goal string, algorithm_mo
 	return source,goal,algorithm_mode,solution_mode
 }
 
+// Check if getRequests() return value is valid
 func isLinkValid(context *gin.Context) bool {
 	source, goal, algorithm_mode, solution_mode := getRequests(context)
 	return (
@@ -42,6 +46,7 @@ func isLinkValid(context *gin.Context) bool {
 		(solution_mode == scrapper.SINGLE_PARAM || solution_mode == scrapper.MANY_PARAM))
 }
 
+// Wrap the solution into a Package struct
 func wrapPackage(durasi time.Duration,  solusi []scrapper.Node)Package{
 	var pack Package
 	pack.Duration = durasi.String()
@@ -54,6 +59,7 @@ func wrapPackage(durasi time.Duration,  solusi []scrapper.Node)Package{
 	return pack
 }
 
+// Return the request
 func sendRequest(context *gin.Context, pack Package) {
 	if len(pack.Solutions) != 0 {
 		context.IndentedJSON(http.StatusFound, pack)

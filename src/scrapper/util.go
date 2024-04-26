@@ -16,6 +16,7 @@ import (
  *    DATA STRUCTURE
  *
  */
+
 // Define a struct to represent a node in the graph
 type Node struct {
 	Current string
@@ -102,6 +103,16 @@ func getDocument(resp *http.Response) *goquery.Document {
 }
 
 /**
+ * Function to fill the string document from the response
+ *
+ */
+func stringFilter(i int, s *goquery.Selection) bool {
+	linkTemp, _ := s.Attr("href")
+	return strings.HasPrefix(linkTemp, "/wiki") &&
+		!(strings.Contains(linkTemp, "."))
+}
+
+/**
  * Function to get the adjacent nodes (links) from the current node (current link)
  *
  * @param activeNode: the current node
@@ -123,25 +134,24 @@ func getAdjacentLinks(activeNode Node, mode string) []Node {
 		// Find all the links in the HTML document
 		var linkNodes []Node
 		// Filter the links that start with "/wiki/" and do not contain "."
-		doc.Find("div.mw-content-ltr.mw-parser-output").Find("a").FilterFunction(func(i int, s *goquery.Selection) bool {
-			linkTemp, _ := s.Attr("href")
-			return strings.HasPrefix(linkTemp, "/wiki") && !(strings.Contains(linkTemp, "."))
-		}).Each(func(i int, s *goquery.Selection) {
-			linkTemp, _ := s.Attr("href")
-			// Create a new node for each link
-			var tempNode Node
-			tempNode.Current = removeHash(linkTemp)
+		doc.Find("div.mw-content-ltr.mw-parser-output").Find("a").FilterFunction(stringFilter).Each(
+			func(i int, s *goquery.Selection) {
+				linkTemp, _ := s.Attr("href")
+				// Create a new node for each link
+				var tempNode Node
+				tempNode.Current = removeHash(linkTemp)
 
-			if mode == "bfs" {
-				tempNode.Paths = append(activeNode.Paths, removeHash(activeNode.Current))
-			}
+				if mode == "bfs" {
+					tempNode.Paths = append(activeNode.Paths, removeHash(activeNode.Current))
+				}
 
-			// Append the new node to the list of links
-			if !Visited_Node[tempNode.Current] && !unique[tempNode.Current] {
-				linkNodes = append(linkNodes, tempNode)
-				unique[tempNode.Current] = true
-			}
-		})
+				// Append the new node to the list of links
+				if !Visited_Node[tempNode.Current] && !unique[tempNode.Current] {
+					linkNodes = append(linkNodes, tempNode)
+					unique[tempNode.Current] = true
+				}
+			},
+		)
 		return linkNodes
 	}
 }
@@ -211,6 +221,7 @@ func writeCacheToFile() {
 	}
 
 	fmt.Println("Cache has been written to cache.json")
+	fmt.Println()
 }
 
 /**
@@ -243,4 +254,8 @@ func readCacheFromFile() {
 	}
 
 	fmt.Println("Cache has been read from cache.json")
+}
+
+func getLinkRate(duration time.Duration) float64 {
+	return float64(Total_Visited_Link) / float64(duration)
 }

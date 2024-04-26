@@ -19,7 +19,7 @@ const MANY_PARAM = "many"
  * @param link_tujuan: the destination link
  */
 func printRequestedParameters(link_awal string, link_tujuan string) {
-	fmt.Println("Requested Paramters:")
+	fmt.Println("\n<=== Requested Paramters ===>")
 	fmt.Print("Source: ")
 	fmt.Println(link_awal)
 	fmt.Print("Goal: ")
@@ -36,6 +36,7 @@ func printSolution(solutions []Node, duration time.Duration) {
 	fmt.Println("======================= SOLUTION =======================")
 	fmt.Println("Found", len(solutions), "solutions in", duration)
 	fmt.Println("Total of links visited:", Total_Visited_Link)
+	fmt.Printf("Link rate: %.2f link/second\n",getLinkRate(duration))
 
 	for i, value := range solutions {
 		fmt.Println("Solution -", i+1)
