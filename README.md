@@ -1,5 +1,4 @@
 # 🏊🏻‍♀️ Tubes2_BE_Penyelam_Handal
-<iframe src="https://giphy.com/embed/l41lFw057lAJQMwg0" width="480" height="270" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/rickandmorty-rick-and-morty-210-l41lFw057lAJQMwg0">via GIPHY</a></p>
 This repository provides an API for solving [**WikiRace**](https://wiki-race.com/) in the shortest order as possible. Inspired by [**Six Degrees of Wikipedia**](https://www.sixdegreesofwikipedia.com/), we implemented ***Breadth First Search*** and ***Iterative Depth Search*** using GO Language.
 
 ## 🔨 How to Run / Build
