@@ -19,7 +19,7 @@ import (
 
 // Define a struct to represent a node in the graph
 type Node struct {
-	Current *string
+	Current string
 	Paths   *Node
 	// Neighbours []string
 }
@@ -56,8 +56,8 @@ var Cache = make(map[string][]string)
  * @param link: the link
  * @return true if the link is in the Cache, otherwise false
  */
-func isInCache(link *string) bool {
-	return len(Cache[*link]) != 0
+func isInCache(link string) bool {
+	return len(Cache[link]) != 0
 }
 
 /**
@@ -107,20 +107,21 @@ func getDocument(resp *http.Response) *goquery.Document {
  * Function to get the adjacent nodes (links) from the current node (current link)
  *
  * @param activeNode: the current node
- * @return links: a list of adjacent nodes
+ * @return links: a list of adjacent nodes "/wiki/..."
  */
 func getAdjacentLinks(activeNode Node) []string {
 	// Get the HTML document from the current link
-	link := DOMAIN_PREFIX + *activeNode.Current
+	link := DOMAIN_PREFIX + activeNode.Current
 	res := getResponse(link)
 	doc := getDocument(res)
 
+	var link_list []string
 	// If the document is nil, return an empty list
 	if doc != nil {
 		unique := make(map[string]bool) // to make sure that the link is unique
 
 		// Find all the links in the HTML document
-		var link_list []string
+		
 		// Filter the links that start with "/wiki/" and do not contain "."
 		doc.Find("div.mw-content-ltr.mw-parser-output").Find("a").FilterFunction(func(i int, s *goquery.Selection) bool {
 			link_temp, _ := s.Attr("href")
@@ -138,7 +139,7 @@ func getAdjacentLinks(activeNode Node) []string {
 		})
 		return link_list
 	} else {
-		return nil
+		return link_list
 	}
 }
 

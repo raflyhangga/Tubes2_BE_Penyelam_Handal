@@ -11,7 +11,7 @@ import (
  * @param destinationLink: link of the destination link
  * @param hasil: a list of nodes that contain destination node
  */
-func breadth_first_search_many_solution(currentQueue []*Node, destinationLink *string, hasil *[]Node) {
+func breadth_first_search_many_solution(currentQueue []*Node, destinationLink string, hasil *[]Node) {
 	if len(currentQueue) == 0 {
 		return
 	} else {
@@ -19,7 +19,7 @@ func breadth_first_search_many_solution(currentQueue []*Node, destinationLink *s
 		// check if the destination node is in the current queue
 		isDestinationLinkExist := false
 		for _, current_node := range currentQueue {
-			Visited_Node[*current_node.Current] = true
+			Visited_Node[current_node.Current] = true
 			if current_node.Current == destinationLink {
 				*hasil = append(*hasil, *current_node)
 				isDestinationLinkExist = true
@@ -51,7 +51,7 @@ func breadth_first_search_many_solution(currentQueue []*Node, destinationLink *s
 						// get the adjacent links from the current node
 						for _,link := range getAdjacentLinks(*current_node) {
 							newQueue = append(newQueue, &Node{
-								Current: &link,
+								Current: link,
 								Paths: current_node,
 							})
 						}
@@ -72,7 +72,7 @@ func breadth_first_search_many_solution(currentQueue []*Node, destinationLink *s
 
 					for _,link := range getAdjacentLinks(*current_node) {
 						newQueue = append(newQueue, &Node{
-							Current: &link,
+							Current: link,
 							Paths: current_node,
 						})
 					}
@@ -94,14 +94,14 @@ func breadth_first_search_many_solution(currentQueue []*Node, destinationLink *s
  * @param destinationLink: link of the destination link
  * @param hasil: a list of nodes that contain destination node
  */
-func breadth_first_search_one_solution(currentQueue []*Node, destinationLink *string, hasil *[]Node) {
+func breadth_first_search_one_solution(currentQueue []*Node, destinationLink string, hasil *[]Node) {
 	if len(currentQueue) == 0 {
 		return
 	} else {
 		// go through all the nodes in the current queue
 		// check if the destination node is in the current queue
 		for _, current_node := range currentQueue {
-			Visited_Node[*current_node.Current] = true
+			Visited_Node[current_node.Current] = true
 			Total_Visited_Link++
 			if current_node.Current == destinationLink {
 				*hasil = append(*hasil, *current_node)
@@ -129,7 +129,7 @@ func breadth_first_search_one_solution(currentQueue []*Node, destinationLink *st
 					// get the adjacent links from the current node
 					for _,link := range getAdjacentLinks(*current_node) {
 						newQueue = append(newQueue, &Node{
-							Current: &link,
+							Current: link,
 							Paths: current_node,
 						})
 					}
@@ -149,7 +149,7 @@ func breadth_first_search_one_solution(currentQueue []*Node, destinationLink *st
 				// get the adjacent links from the current node
 				for _,link := range getAdjacentLinks(*current_node) {
 					newQueue = append(newQueue, &Node{
-						Current: &link,
+						Current: link,
 						Paths: current_node,
 					})
 				}

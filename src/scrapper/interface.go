@@ -21,7 +21,7 @@ func GetPath(node *Node) []string {
 
 	var itr_node *Node = node
 	for itr_node != nil {
-		path = append(path, *itr_node.Current)
+		path = append(path, itr_node.Current)
 		itr_node = itr_node.Paths 
 	}
 	return reversePath(path)
@@ -69,7 +69,7 @@ func BFS_interface(link_awal string, link_tujuan string, solution_mode string) (
 	fmt.Print("Starting Breadth First Search ")
 	var initial []*Node
 	initial = append(initial, &Node{
-		Current: &link_awal,
+		Current: link_awal,
 		Paths: nil,
 	})
 
@@ -78,10 +78,10 @@ func BFS_interface(link_awal string, link_tujuan string, solution_mode string) (
 	startTime := time.Now()
 	if solution_mode == SINGLE_PARAM {
 		fmt.Println("single solution..")
-		breadth_first_search_one_solution(initial, &link_tujuan, &solutions)
+		breadth_first_search_one_solution(initial, link_tujuan, &solutions)
 	} else if solution_mode == MANY_PARAM {
 		fmt.Println("multiple solution..")
-		breadth_first_search_many_solution(initial, &link_tujuan, &solutions)
+		breadth_first_search_many_solution(initial, link_tujuan, &solutions)
 	}
 	duration := time.Since(startTime)
 
