@@ -15,26 +15,29 @@ import (
 func depth_limited_search_many_solution(currentNode *Node, destinationLink string, depth int, hasil *[]Node) {
 	Total_Visited_Link++
 
-	if depth == 0 { // if the current node is the ddepest node
-		if currentNode.Current == destinationLink {
+	if depth == 0 { // if the current node is the depest node
+		if *currentNode.Current == destinationLink {
 			*hasil = append(*hasil, *currentNode)
 		}
 	} else {
-		if currentNode.Current == destinationLink { // check is the current node is destination node
+		if *currentNode.Current == destinationLink { // check is the current node is destination node
 			*hasil = append(*hasil, *currentNode)
 		} else { // if the current node is not the destination node
-			var tetangga []string
-			if isInCache(currentNode.Current) {
-				tetangga = Cache[currentNode.Current]
-			} else {
-				tetangga = getAdjacentLinks(*currentNode)
-				Cache[currentNode.Current] = tetangga
+			if !isInCache(currentNode.Current) {
+				Cache[*currentNode.Current] = getAdjacentLinks(*currentNode)
 			}
-			for _, node := range tetangga {
-				depth_limited_search_many_solution(&Node{
-					Current: node,
+			isFound := false 
+			for _, link := range Cache[*currentNode.Current] {
+				var tempNode = &Node{
+					Current: &link,
 					Paths: currentNode,
-				}, destinationLink, depth-1, hasil)
+				}
+				if(link == destinationLink){
+					*hasil = append(*hasil, *tempNode)
+					isFound = true
+				} else if(!isFound) {
+					depth_limited_search_many_solution(tempNode, destinationLink, depth-1, hasil)
+				}
 			}
 		}
 	}
@@ -53,26 +56,21 @@ func depth_limited_search_one_solution(currentNode *Node, destinationLink string
 		return
 	} else if depth == 0 { // if the current node is the ddepest node
 		Total_Visited_Link++
-		if currentNode.Current == destinationLink {
+		if *currentNode.Current == destinationLink {
 			*hasil = append(*hasil, *currentNode)
 		}
 	} else {
 		Total_Visited_Link++
-		if currentNode.Current == destinationLink { // check is the current node is destination node
+		if *currentNode.Current == destinationLink { // check is the current node is destination node
 			*hasil = append(*hasil, *currentNode)
 		} else { // if the current node is not the destination node
-			var tetangga []string
-			if isInCache(currentNode.Current) {
-				fmt.Println("h")
-				tetangga = Cache[currentNode.Current]
-			} else {
-				fmt.Println("m")
-				tetangga = getAdjacentLinks(*currentNode)
-				Cache[currentNode.Current] = tetangga
-			}
-			for _, node := range tetangga {
+			if !isInCache(currentNode.Current) {
+				Cache[*currentNode.Current] = getAdjacentLinks(*currentNode)
+			} 
+			
+			for _, link := range Cache[*currentNode.Current] {
 				depth_limited_search_many_solution(&Node{
-					Current: node,
+					Current: &link,
 					Paths: currentNode,
 				}, destinationLink, depth-1, hasil)
 				if len(*hasil) > 0 {
@@ -92,7 +90,7 @@ func depth_limited_search_one_solution(currentNode *Node, destinationLink string
  */
 func iterative_deepening_search_single(startLink string, destinationLink string, hasil *[]Node) {
 	var initial = Node{
-		Current: startLink,
+		Current: &startLink,
 		Paths: nil,
 	}
 
@@ -110,7 +108,7 @@ func iterative_deepening_search_single(startLink string, destinationLink string,
 
 func iterative_deepening_search_many(startLink string, destinationLink string, hasil *[]Node) {
 	var initial = Node{
-		Current: startLink,
+		Current: &startLink,
 		Paths: nil,
 	}
 

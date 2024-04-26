@@ -19,7 +19,7 @@ import (
 
 // Define a struct to represent a node in the graph
 type Node struct {
-	Current string
+	Current *string
 	Paths   *Node
 	// Neighbours []string
 }
@@ -56,8 +56,8 @@ var Cache = make(map[string][]string)
  * @param link: the link
  * @return true if the link is in the Cache, otherwise false
  */
-func isInCache(link string) bool {
-	return len(Cache[link]) != 0
+func isInCache(link *string) bool {
+	return len(Cache[*link]) != 0
 }
 
 /**
@@ -111,7 +111,7 @@ func getDocument(resp *http.Response) *goquery.Document {
  */
 func getAdjacentLinks(activeNode Node) []string {
 	// Get the HTML document from the current link
-	link := DOMAIN_PREFIX + activeNode.Current
+	link := DOMAIN_PREFIX + *activeNode.Current
 	res := getResponse(link)
 	doc := getDocument(res)
 
@@ -132,7 +132,7 @@ func getAdjacentLinks(activeNode Node) []string {
 
 			// Append the new node to the list of links
 			if !Visited_Node[link_processed] && !unique[link_processed] {
-				link_list = append(link_list,  removeHash(link_processed))
+				link_list = append(link_list,  link_processed)
 				unique[link_processed] = true
 			}
 		})
@@ -165,7 +165,8 @@ func writeCacheToFile() {
 	for key, value := range Cache {
 		var temp CacheFile
 		temp.Key = key
-		temp.Neighbours = append(temp.Neighbours, value...)
+		// temp.Neighbours = append(temp.Neighbours, value...)
+		temp.Neighbours = value
 		cacheFile = append(cacheFile, temp)
 	}
 
