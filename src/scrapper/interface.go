@@ -5,9 +5,19 @@ import (
 	"time"
 )
 
+/**
+ *    GLOBAL VARIABLES
+ *
+ */
 const SINGLE_PARAM = "single"
 const MANY_PARAM = "many"
 
+/**
+ * Procedure to print the requested parameters
+ *
+ * @param link_awal: the source link
+ * @param link_tujuan: the destination link
+ */
 func printRequestedParameters(link_awal string, link_tujuan string) {
 	fmt.Println("Requested Paramters:")
 	fmt.Print("Source: ")
@@ -16,6 +26,12 @@ func printRequestedParameters(link_awal string, link_tujuan string) {
 	fmt.Println(link_tujuan)
 }
 
+/**
+ * Procedure to print the solution
+ *
+ * @param solutions: a list of nodes that contain the path from the start node to the destination node
+ * @param duration: the duration to find the solution
+ */
 func printSolution(solutions []Node, duration time.Duration) {
 	fmt.Println("======================= SOLUTION =======================")
 	fmt.Println("Found", len(solutions), "solutions in", duration)
@@ -30,14 +46,26 @@ func printSolution(solutions []Node, duration time.Duration) {
 	}
 }
 
+/**
+ * Function to do the Iterative Deepening Search (IDS) algorithm
+ *
+ * @param link_awal: the start link
+ * @param link_tujuan: destination link
+ * @param solution_mode: the solution mode (single or many)
+ * @return a list of solution that contain the path from the start node to the destination node and the duration to find the solution
+ */
 func IDS_interface(link_awal string, link_tujuan string, solution_mode string) ([]Node, time.Duration) {
-	printRequestedParameters(link_awal,link_tujuan)
-	if(len(Cache) == 0) {
+	printRequestedParameters(link_awal, link_tujuan)
+
+	// read cache from file
+	if len(Cache) == 0 {
 		readCacheFromFile()
 	}
+
 	fmt.Print("Starting Iterative Deepening Search ")
 	var solutions []Node
 
+	// find the solution using Iterative Deepening Search (IDS) algorithm
 	startTime := time.Now()
 	if solution_mode == SINGLE_PARAM {
 		fmt.Println("single solution..")
@@ -54,8 +82,16 @@ func IDS_interface(link_awal string, link_tujuan string, solution_mode string) (
 	return solutions, duration
 }
 
+/**
+ * Function to do the Breadth First Search (BFS) algorithm
+ *
+ * @param link_awal: the start link
+ * @param link_tujuan: destination link
+ * @param solution_mode: the solution mode (single or many)
+ * @return a list of solution that contain the path from the start node to the destination node and the duration to find the solution
+ */
 func BFS_interface(link_awal string, link_tujuan string, solution_mode string) ([]Node, time.Duration) {
-	printRequestedParameters(link_awal,link_tujuan)
+	printRequestedParameters(link_awal, link_tujuan)
 	fmt.Print("Starting Breadth First Search ")
 	var initial = Node{
 		Current: link_awal,

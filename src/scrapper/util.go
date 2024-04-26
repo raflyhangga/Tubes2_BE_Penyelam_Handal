@@ -105,7 +105,8 @@ func getDocument(resp *http.Response) *goquery.Document {
  * Function to get the adjacent nodes (links) from the current node (current link)
  *
  * @param activeNode: the current node
- * @return links: a list of adjacent nodes
+ * @param mode: the mode (bfs or ids)
+ * @return linkNodes: a list of adjacent nodes
  */
 func getAdjacentLinks(activeNode Node, mode string) []Node {
 	// Get the HTML document from the current link
@@ -160,7 +161,21 @@ func removeHash(link string) string {
 }
 
 /**
- * Function to write the cache to a JSON file
+ * Function to add domain prefix to the list of links
+ *
+ * @param list: a list of links
+ * @return realLink: a list of links with domain prefix
+ */
+func AddDomainPrefix(list []string) []string {
+	realLink := make([]string, len(list))
+	for i, link := range list {
+		realLink[i] = DOMAIN_PREFIX + link
+	}
+	return realLink
+}
+
+/**
+ * Procedure to write the cache to a JSON file
  */
 func writeCacheToFile() {
 	// write cache to struct
@@ -199,7 +214,7 @@ func writeCacheToFile() {
 }
 
 /**
- * Function to read the cache from a JSON file
+ * Procedure to read the cache from a JSON file
  */
 func readCacheFromFile() {
 	// read cache from file
@@ -228,12 +243,4 @@ func readCacheFromFile() {
 	}
 
 	fmt.Println("Cache has been read from cache.json")
-}
-
-func AddDomainPrefix(list []string) []string {
-	realLink := make([]string, len(list))
-	for i, link := range list {
-		realLink[i] = DOMAIN_PREFIX + link
-	}
-	return realLink
 }
