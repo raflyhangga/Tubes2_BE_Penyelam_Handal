@@ -39,6 +39,9 @@ func depth_limited_search_many_solution(currentNode Node, destinationLink string
 				Cache[currentNode.Current] = cacheTetangga
 			}
 			for _, node := range tetangga {
+				if(node.Current == destinationLink) {
+					*hasil = append(*hasil, node)
+				}
 				depth_limited_search_many_solution(node, destinationLink, depth-1, hasil)
 			}
 		}
