@@ -34,3 +34,9 @@ Search from Chicken to Football :
 ```
 localhost:9090/ids/single?source=CHicken&goal=Football
 ```
+## Anggota kelompok:
+| NIM |  Nama Anggota  |
+|:-----|:--------:|
+| 13522006 | Agil Fadillah Sabri |
+| 13522014 | Raden Rafly Hanggaraksa B |
+| 13522043 | Haikal Assyauqi |
