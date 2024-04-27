@@ -34,9 +34,9 @@ func printRequestedParameters(link_awal string, link_tujuan string) {
  */
 func printSolution(solutions []Node, duration time.Duration) {
 	fmt.Println("======================= SOLUTION =======================")
-	fmt.Println("Found", len(solutions), "solutions in", duration)
+	fmt.Println("Found", len(solutions), "solutions in", duration, "with minimum depth", len(solutions[0].Paths))
 	fmt.Println("Total of links visited:", Total_Visited_Link)
-	fmt.Printf("Link rate: %.2f link/second\n",getLinkRate(duration))
+	fmt.Printf("Link rate: %.2f link/second\n", getLinkRate(duration))
 
 	for i, value := range solutions {
 		fmt.Println("Solution -", i+1)

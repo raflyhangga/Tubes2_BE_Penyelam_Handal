@@ -22,6 +22,7 @@ func depth_limited_search_one_solution(currentNode Node, destinationLink string,
 			*hasil = append(*hasil, currentNode)
 		}
 	} else {
+		Visited_Node[currentNode.Current] = true
 		path = append(path, currentNode.Current)
 		var tetangga []Node
 
@@ -54,12 +55,15 @@ func depth_limited_search_one_solution(currentNode Node, destinationLink string,
  * @param hasil: a list of nodes that contain the path from the start node to the destination node
  */
 func depth_limited_search_many_solution(currentNode Node, destinationLink string, depth int, hasil *[]Node, path []string) {
+	Visited_Node[currentNode.Current] = true
+
 	if depth == 0 { // if the current node is the ddepest node
 		if currentNode.Current == destinationLink {
 			currentNode.Paths = path
 			*hasil = append(*hasil, currentNode)
 		}
 	} else {
+		Visited_Node[currentNode.Current] = true
 		path = append(path, currentNode.Current)
 		var tetangga []Node
 
@@ -101,6 +105,7 @@ func iterative_deepening_search_single(startLink string, destinationLink string,
 	// start the depth from 1
 	depth := 1
 	for len(solutions) == 0 {
+		Visited_Node = make(map[string]bool)
 		Total_Visited_Link = 0
 		fmt.Println("Starting new depth..")
 		depth_limited_search_one_solution(initial, destinationLink, depth, &solutions, []string{})
@@ -132,6 +137,7 @@ func iterative_deepening_search_many(startLink string, destinationLink string, h
 	// start the depth from 1
 	depth := 1
 	for len(solutions) == 0 {
+		Visited_Node = make(map[string]bool)
 		Total_Visited_Link = 0
 		fmt.Println("Starting new depth..")
 		depth_limited_search_many_solution(initial, destinationLink, depth, &solutions, []string{})

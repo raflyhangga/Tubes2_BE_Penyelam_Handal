@@ -15,13 +15,14 @@ const BFS_PARAM = "bfs"
 const IDS_PARAM = "ids"
 const SOURCE_QUERY = "source"
 const GOAL_QUERY = "goal"
-const ENDPOINT = "/:"+ALGORITHM_PARAM+"/:"+SOLUTIONS_PARAM
+const ENDPOINT = "/:" + ALGORITHM_PARAM + "/:" + SOLUTIONS_PARAM
 const URL = "localhost:9090"
 
 type Package struct {
 	Solutions [][]string `json:"solutions"`
 	Duration  string     `json:"duration"`
 	Total     int        `json:"total_visited"`
+	Depth     int        `json:"depth"`
 }
 
 // Get the needed request for BFS / IDS Algorithm
@@ -32,25 +33,27 @@ func getRequests(context *gin.Context) (source string, goal string, algorithm_mo
 	goal = queryParams.Get(GOAL_QUERY)
 	solution_mode = context.Param(SOLUTIONS_PARAM)
 
-	return source,goal,algorithm_mode,solution_mode
+	return source, goal, algorithm_mode, solution_mode
 }
 
 // Check if getRequests() return value is valid
 func isLinkValid(context *gin.Context) bool {
 	source, goal, algorithm_mode, solution_mode := getRequests(context)
-	return (
-		len(source) != 0 && 
-		len(goal) != 0 && 
-		len(solution_mode) != 0 && 
-		(algorithm_mode == BFS_PARAM || algorithm_mode == IDS_PARAM) && 
+	return (len(source) != 0 &&
+		len(goal) != 0 &&
+		len(solution_mode) != 0 &&
+		(algorithm_mode == BFS_PARAM || algorithm_mode == IDS_PARAM) &&
 		(solution_mode == scrapper.SINGLE_PARAM || solution_mode == scrapper.MANY_PARAM))
 }
 
 // Wrap the solution into a Package struct
-func wrapPackage(durasi time.Duration,  solusi []scrapper.Node)Package{
+func wrapPackage(durasi time.Duration, solusi []scrapper.Node) Package {
 	var pack Package
 	pack.Duration = durasi.String()
 	pack.Total = scrapper.Total_Visited_Link
+	if len(solusi) != 0 {
+		pack.Depth = len(solusi[0].Paths)
+	}
 	for _, node := range solusi {
 		path := scrapper.AddDomainPrefix(node.Paths)
 		current := scrapper.DOMAIN_PREFIX + node.Current
